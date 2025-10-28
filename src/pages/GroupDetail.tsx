@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Calendar, ArrowLeft, CheckCircle, XCircle, Clock, Goal, Eye, Gamepad2, ChartLine } from 'lucide-react';
 import { ResponsiveBar } from '@nivo/bar';
+import { ResponsiveBump } from '@nivo/bump';
 import toast from 'react-hot-toast';
 import { Button, GameApprovalModal, AddCPUModal, ConfirmModal } from '../shared/components';
 import { WarioLoader, CountryFlag } from '../shared/components/ui';
@@ -21,6 +22,7 @@ export default function GroupDetail() {
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [approvedGamesWithResults, setApprovedGamesWithResults] = useState<Game[]>([]);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'statistics'>('leaderboard');
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [showCloseLeagueModal, setShowCloseLeagueModal] = useState(false);
@@ -139,6 +141,9 @@ export default function GroupDetail() {
 
       const approvedGames = await supabaseAPI.getGroupGames(id, 'approved');
       const bonuses = await supabaseAPI.getLeagueBonuses(id);
+
+      // Store approved games with results for charts
+      setApprovedGamesWithResults(approvedGames);
 
       const leaderboardData = calculateLeaderboard(groupData.members, approvedGames);
 
@@ -880,28 +885,120 @@ export default function GroupDetail() {
 
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
-                      <div className="mb-3">
-                        <span className="text-3xl">🎯</span>
+                    {/* Bump Chart - Evolución de Posiciones */}
+                    <div className="col-span-2 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                      <div className="flex items-center mb-4">
+                        <span className="text-2xl mr-2">📈</span>
+                        <h4 className="text-lg font-semibold text-gray-800">
+                          Evolución de Posiciones
+                        </h4>
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                        Estadística 2
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        Placeholder para estadística
-                      </p>
-                    </div>
 
-                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
-                      <div className="mb-3">
-                        <span className="text-3xl">🏆</span>
+                      <div className="h-64">
+                        {(() => {
+                          // Use approved games with results from state
+                          const approvedGames = approvedGamesWithResults
+                            .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+                          if (approvedGames.length === 0) {
+                            return (
+                              <div className="h-full flex items-center justify-center">
+                                <div className="text-center text-gray-500">
+                                  <span className="text-4xl block mb-2">📈</span>
+                                  <p className="text-sm">No hay suficientes partidas para mostrar evolución</p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Process data for bump chart
+                          const playerData: { [key: string]: { name: string; positions: number[] } } = {};
+
+                          // Initialize all players
+                          leaderboard.forEach(entry => {
+                            playerData[entry.player_id] = {
+                              name: entry.player_name,
+                              positions: []
+                            };
+                          });
+
+                          // Fill positions for each game
+                          approvedGames.forEach(game => {
+                            const gameResults = game.results?.sort((a, b) => a.position - b.position) || [];
+                            gameResults.forEach(result => {
+                              if (playerData[result.player_id]) {
+                                playerData[result.player_id].positions.push(result.position);
+                              }
+                            });
+                          });
+
+                          // Convert to Nivo Bump format
+                          const bumpData = Object.entries(playerData)
+                            .filter(([_, data]) => data.positions.length > 0)
+                            .map(([_playerId, data]) => ({
+                              id: data.name.length > 12 ? data.name.substring(0, 12) + '...' : data.name,
+                              data: data.positions.map((position, index) => ({
+                                x: index + 1,
+                                y: position
+                              }))
+                            }));
+
+                          if (bumpData.length === 0) {
+                            return (
+                              <div className="h-full flex items-center justify-center">
+                                <div className="text-center text-gray-500">
+                                  <span className="text-4xl block mb-2">📈</span>
+                                  <p className="text-sm">No hay datos disponibles</p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <ResponsiveBump
+                              data={bumpData}
+                              margin={{ top: 40, right: 120, bottom: 40, left: 60 }}
+                              colors={{ scheme: 'category10' }}
+                              lineWidth={3}
+                              activeLineWidth={6}
+                              inactiveLineWidth={3}
+                              inactiveOpacity={0.15}
+                              pointSize={10}
+                              activePointSize={16}
+                              inactivePointSize={0}
+                              pointColor={{ theme: 'background' }}
+                              pointBorderWidth={3}
+                              activePointBorderWidth={3}
+                              pointBorderColor={{ from: 'serie.color' }}
+                              axisTop={{
+                                tickSize: 5,
+                                tickPadding: 5,
+                                tickRotation: 0,
+                                legend: '',
+                                legendPosition: 'middle',
+                                legendOffset: -36
+                              }}
+                              axisBottom={{
+                                tickSize: 5,
+                                tickPadding: 5,
+                                tickRotation: 0,
+                                legend: 'Partida',
+                                legendPosition: 'middle',
+                                legendOffset: 32
+                              }}
+                              axisLeft={{
+                                tickSize: 5,
+                                tickPadding: 5,
+                                tickRotation: 0,
+                                legend: 'Posición',
+                                legendPosition: 'middle',
+                                legendOffset: -40
+                              }}
+                              axisRight={null}
+                            />
+                          );
+                        })()}
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                        Estadística 3
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        Placeholder para estadística
-                      </p>
                     </div>
 
                     {/* Row 2 */}

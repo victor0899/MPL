@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Calendar, ArrowLeft, CheckCircle, XCircle, Clock, Goal, Eye, Gamepad2, ChartLine } from 'lucide-react';
+import { Calendar, ArrowLeft, CheckCircle, XCircle, Clock, Goal, Eye, Gamepad2, ChartLine, Trophy, TrendingUpDown, Target, Coins, User, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { ResponsiveBar } from '@nivo/bar';
 import { ResponsiveBump } from '@nivo/bump';
+import { ResponsiveLine } from '@nivo/line';
+import { ResponsivePie } from '@nivo/pie';
 import toast from 'react-hot-toast';
 import { Button, GameApprovalModal, AddCPUModal, ConfirmModal } from '../shared/components';
 import { WarioLoader, CountryFlag } from '../shared/components/ui';
@@ -11,7 +13,64 @@ import { useAuthStore } from '../app/store/useAuthStore';
 import { formatGameDate } from '../shared/utils/dateFormat';
 import { getCharacterImage } from '../shared/utils/characters';
 import { DEFAULT_COUNTRY } from '../shared/utils/countries';
+import { getMapImageUrl, getMapInfo } from '../shared/utils/maps';
 import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
+
+// Component for live countdown timer
+function LastVictoryCounter({ lastVictoryDate, mapName, mapInfo }: { lastVictoryDate: string; mapName: string; mapInfo: any }) {
+  const [timeElapsed, setTimeElapsed] = useState('');
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const victoryTime = new Date(lastVictoryDate).getTime();
+      const diff = now - victoryTime;
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setTimeElapsed(`${days}D|${hours}H|${minutes}M|${seconds}S`);
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastVictoryDate]);
+
+  const [days, hours, minutes, seconds] = timeElapsed.split('|');
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full">
+      {getMapImageUrl(mapName) ? (
+        <div className="relative mb-4 w-full">
+          <img
+            src={getMapImageUrl(mapName)!}
+            alt={mapName}
+            className="w-full h-32 object-cover object-center rounded-lg shadow-md"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-10 rounded-lg"></div>
+        </div>
+      ) : (
+        <div className="w-full h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md flex items-center justify-center mb-4">
+          <span className="text-white text-lg font-semibold">{mapName}</span>
+        </div>
+      )}
+
+      <h5 className="text-xl font-bold text-gray-800 mb-4 text-center">{mapName}</h5>
+
+      <p className="text-sm text-gray-600 mb-3">Hace:</p>
+      <div className="flex flex-col items-center space-y-1">
+        <div className="text-4xl font-bold text-red-600">{days}</div>
+        <div className="text-4xl font-bold text-red-600">{hours}</div>
+        <div className="text-4xl font-bold text-red-600">{minutes}</div>
+        <div className="text-4xl font-bold text-red-600">{seconds}</div>
+      </div>
+    </div>
+  );
+}
 
 export default function GroupDetail() {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +83,7 @@ export default function GroupDetail() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [approvedGamesWithResults, setApprovedGamesWithResults] = useState<Game[]>([]);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'statistics'>('leaderboard');
+  const [statsMode, setStatsMode] = useState<'general' | 'personal'>('general');
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [showCloseLeagueModal, setShowCloseLeagueModal] = useState(false);
   const navigate = useNavigate();
@@ -796,11 +856,54 @@ export default function GroupDetail() {
               {/* Statistics Tab */}
               {activeTab === 'statistics' && (
                 <div className="p-6">
+                  {/* Stats Mode Navigation */}
+                  <div className="mb-6 flex items-center justify-between">
+                    <button
+                      onClick={() => setStatsMode('general')}
+                      disabled={statsMode === 'general'}
+                      className={`p-2 rounded-full transition-colors ${
+                        statsMode === 'general'
+                          ? 'text-gray-300 cursor-not-allowed'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+
+                    <div className="flex items-center gap-3">
+                      {statsMode === 'general' ? (
+                        <>
+                          <ChartLine className="w-6 h-6 text-blue-600" />
+                          <h3 className="text-2xl font-bold text-gray-800">Estadísticas Generales</h3>
+                        </>
+                      ) : (
+                        <>
+                          <User className="w-6 h-6 text-purple-600" />
+                          <h3 className="text-2xl font-bold text-gray-800">Estadísticas Personales</h3>
+                        </>
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() => setStatsMode('personal')}
+                      disabled={statsMode === 'personal'}
+                      className={`p-2 rounded-full transition-colors ${
+                        statsMode === 'personal'
+                          ? 'text-gray-300 cursor-not-allowed'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  {/* General Statistics */}
+                  {statsMode === 'general' && (
                   <div className="grid grid-cols-3 gap-6">
                     {/* Row 1 - Victory Statistics */}
                     <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                       <div className="flex items-center mb-4">
-                        <span className="text-2xl mr-2">🏆</span>
+                        <Trophy className="w-6 h-6 mr-2 text-yellow-500" />
                         <h4 className="text-lg font-semibold text-gray-800">
                           Victorias
                         </h4>
@@ -888,7 +991,7 @@ export default function GroupDetail() {
                     {/* Bump Chart - Evolución de Posiciones */}
                     <div className="col-span-2 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                       <div className="flex items-center mb-4">
-                        <span className="text-2xl mr-2">📈</span>
+                        <TrendingUpDown className="w-6 h-6 mr-2 text-blue-500" />
                         <h4 className="text-lg font-semibold text-gray-800">
                           Evolución de Posiciones
                         </h4>
@@ -904,7 +1007,7 @@ export default function GroupDetail() {
                             return (
                               <div className="h-full flex items-center justify-center">
                                 <div className="text-center text-gray-500">
-                                  <span className="text-4xl block mb-2">📈</span>
+                                  <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400" />
                                   <p className="text-sm">No hay suficientes partidas para mostrar evolución</p>
                                 </div>
                               </div>
@@ -947,7 +1050,7 @@ export default function GroupDetail() {
                             return (
                               <div className="h-full flex items-center justify-center">
                                 <div className="text-center text-gray-500">
-                                  <span className="text-4xl block mb-2">📈</span>
+                                  <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400" />
                                   <p className="text-sm">No hay datos disponibles</p>
                                 </div>
                               </div>
@@ -1001,29 +1104,139 @@ export default function GroupDetail() {
                       </div>
                     </div>
 
-                    {/* Row 2 */}
-                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
-                      <div className="mb-3">
-                        <span className="text-3xl">⭐</span>
+                    {/* Row 2 - Average Minigames for Bonus */}
+                    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                      <div className="flex items-center justify-center mb-3">
+                        <Target className="w-6 h-6 mr-2 text-green-500" />
+                        <h4 className="text-lg font-semibold text-gray-800">
+                          Bono de Minijuegos
+                        </h4>
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                        Estadística 4
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        Placeholder para estadística
-                      </p>
+                      {(() => {
+                        const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                        if (gamesWithResults.length === 0) {
+                          return (
+                            <div className="text-center">
+                              <div className="text-3xl text-gray-400 mb-2">--</div>
+                              <p className="text-xs text-gray-500">Sin datos</p>
+                            </div>
+                          );
+                        }
+
+                        // Calculate max minigames won in each game
+                        const maxMinigamesPerGame = gamesWithResults.map(game => {
+                          const maxMinigames = Math.max(...(game.results?.map(r => r.minigames_won) || [0]));
+                          return maxMinigames;
+                        }).filter(max => max > 0);
+
+                        if (maxMinigamesPerGame.length === 0) {
+                          return (
+                            <div className="text-center">
+                              <div className="text-3xl text-gray-400 mb-2">--</div>
+                              <p className="text-xs text-gray-500">Sin datos</p>
+                            </div>
+                          );
+                        }
+
+                        const average = maxMinigamesPerGame.reduce((sum, val) => sum + val, 0) / maxMinigamesPerGame.length;
+
+                        return (
+                          <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                            <div className="text-8xl font-bold text-green-600 mb-6">
+                              {average.toFixed(1)}
+                            </div>
+                            <p className="text-sm text-gray-600 text-center px-4 max-w-xs">
+                              Promedio de minijuegos necesarios para ganar el bono
+                            </p>
+                          </div>
+                        );
+                      })()}
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
-                      <div className="mb-3">
-                        <span className="text-3xl">🎮</span>
+                    {/* Total Coins Earned per Game */}
+                    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                      <div className="flex items-center mb-4">
+                        <Coins className="w-6 h-6 mr-2 text-yellow-500" />
+                        <h4 className="text-lg font-semibold text-gray-800">
+                          Monedas Obtenidas por Partida
+                        </h4>
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                        Estadística 5
-                      </h4>
-                      <p className="text-sm text-gray-600">
-                        Placeholder para estadística
-                      </p>
+
+                      <div className="h-64">
+                        {(() => {
+                          const gamesWithResults = approvedGamesWithResults
+                            .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+                          if (gamesWithResults.length === 0) {
+                            return (
+                              <div className="h-full flex items-center justify-center">
+                                <div className="text-center text-gray-500">
+                                  <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                  <p className="text-sm">No hay datos disponibles</p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Calculate total coins earned per game (sum of all 4 players)
+                          const lineData = [{
+                            id: 'Monedas Totales',
+                            data: gamesWithResults.map((game, index) => {
+                              const totalCoinsEarned = game.results?.reduce((sum, result) => {
+                                return sum + (result.total_coins_earned || 0);
+                              }, 0) || 0;
+
+                              return {
+                                x: `P${index + 1}`,
+                                y: totalCoinsEarned
+                              };
+                            })
+                          }];
+
+                          return (
+                            <ResponsiveLine
+                              data={lineData}
+                              margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
+                              xScale={{ type: 'point' }}
+                              yScale={{
+                                type: 'linear',
+                                min: 0,
+                                max: 'auto'
+                              }}
+                              curve="linear"
+                              axisTop={null}
+                              axisRight={null}
+                              axisBottom={{
+                                tickSize: 5,
+                                tickPadding: 5,
+                                tickRotation: 0,
+                                legend: 'Partida',
+                                legendOffset: 36,
+                                legendPosition: 'middle'
+                              }}
+                              axisLeft={{
+                                tickSize: 5,
+                                tickPadding: 5,
+                                tickRotation: 0,
+                                legend: 'Monedas Totales',
+                                legendOffset: -50,
+                                legendPosition: 'middle',
+                                format: (value) => Math.floor(value)
+                              }}
+                              colors={{ scheme: 'category10' }}
+                              pointSize={10}
+                              pointColor={{ theme: 'background' }}
+                              pointBorderWidth={2}
+                              pointBorderColor={{ from: 'serieColor' }}
+                              useMesh={true}
+                              enableArea={true}
+                              areaOpacity={0.2}
+                              legends={[]}
+                            />
+                          );
+                        })()}
+                      </div>
                     </div>
 
                     <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
@@ -1038,6 +1251,596 @@ export default function GroupDetail() {
                       </p>
                     </div>
                   </div>
+                  )}
+
+                  {/* Personal Statistics */}
+                  {statsMode === 'personal' && (
+                    <div className="grid grid-cols-3 gap-6">
+                      {/* Row 1 - Personal Coins Chart */}
+                      <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                        <div className="flex items-center mb-4">
+                          <Coins className="w-6 h-6 mr-2 text-yellow-500" />
+                          <h4 className="text-lg font-semibold text-gray-800">
+                            Mis Monedas por Partida
+                          </h4>
+                        </div>
+
+                        <div className="h-64">
+                          {(() => {
+                            // Get user's member ID
+                            const userMember = group?.members?.find(m => m.user_id === user?.id);
+                            if (!userMember) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No eres miembro de este grupo</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const gamesWithResults = approvedGamesWithResults
+                              .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+                            if (gamesWithResults.length === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No hay datos disponibles</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            // Filter results for current user
+                            const userCoinsData = {
+                              earned: [] as Array<{ x: string; y: number }>,
+                              final: [] as Array<{ x: string; y: number }>
+                            };
+
+                            gamesWithResults.forEach((game, index) => {
+                              const userResult = game.results?.find(r => r.player_id === userMember.id);
+                              if (userResult) {
+                                userCoinsData.earned.push({
+                                  x: `P${index + 1}`,
+                                  y: userResult.total_coins_earned || 0
+                                });
+                                userCoinsData.final.push({
+                                  x: `P${index + 1}`,
+                                  y: userResult.coins || 0
+                                });
+                              }
+                            });
+
+                            if (userCoinsData.earned.length === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No has participado en partidas</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const lineData = [
+                              {
+                                id: 'Obtenidas',
+                                data: userCoinsData.earned
+                              },
+                              {
+                                id: 'Finales',
+                                data: userCoinsData.final
+                              }
+                            ];
+
+                            return (
+                              <ResponsiveLine
+                                data={lineData}
+                                margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
+                                xScale={{ type: 'point' }}
+                                yScale={{
+                                  type: 'linear',
+                                  min: 0,
+                                  max: 'auto'
+                                }}
+                                curve="monotoneX"
+                                axisTop={null}
+                                axisRight={null}
+                                axisBottom={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: 'Partida',
+                                  legendOffset: 36,
+                                  legendPosition: 'middle'
+                                }}
+                                axisLeft={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: 'Monedas',
+                                  legendOffset: -50,
+                                  legendPosition: 'middle',
+                                  format: (value) => Math.floor(value)
+                                }}
+                                colors={['#f59e0b', '#10b981']}
+                                pointSize={8}
+                                pointColor={{ theme: 'background' }}
+                                pointBorderWidth={2}
+                                pointBorderColor={{ from: 'serieColor' }}
+                                useMesh={true}
+                                legends={[
+                                  {
+                                    anchor: 'bottom-right',
+                                    direction: 'column',
+                                    justify: false,
+                                    translateX: 100,
+                                    translateY: 0,
+                                    itemsSpacing: 0,
+                                    itemDirection: 'left-to-right',
+                                    itemWidth: 80,
+                                    itemHeight: 20,
+                                    itemOpacity: 0.75,
+                                    symbolSize: 12,
+                                    symbolShape: 'circle',
+                                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                                    effects: [
+                                      {
+                                        on: 'hover',
+                                        style: {
+                                          itemBackground: 'rgba(0, 0, 0, .03)',
+                                          itemOpacity: 1
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]}
+                              />
+                            );
+                          })()}
+                        </div>
+                      </div>
+
+                      {/* Personal Stars Chart */}
+                      <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                        <div className="flex items-center mb-4">
+                          <Star className="w-6 h-6 mr-2 text-yellow-500" />
+                          <h4 className="text-lg font-semibold text-gray-800">
+                            Mis Estrellas por Partida
+                          </h4>
+                        </div>
+
+                        <div className="h-64">
+                          {(() => {
+                            // Get user's member ID
+                            const userMember = group?.members?.find(m => m.user_id === user?.id);
+                            if (!userMember) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No eres miembro de este grupo</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const gamesWithResults = approvedGamesWithResults
+                              .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+                            if (gamesWithResults.length === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No hay datos disponibles</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            // Filter results for current user
+                            const userStarsData = {
+                              earned: [] as Array<{ x: string; y: number }>,
+                              final: [] as Array<{ x: string; y: number }>
+                            };
+
+                            gamesWithResults.forEach((game, index) => {
+                              const userResult = game.results?.find(r => r.player_id === userMember.id);
+                              if (userResult) {
+                                userStarsData.earned.push({
+                                  x: `P${index + 1}`,
+                                  y: userResult.total_stars_earned || 0
+                                });
+                                userStarsData.final.push({
+                                  x: `P${index + 1}`,
+                                  y: userResult.stars || 0
+                                });
+                              }
+                            });
+
+                            if (userStarsData.earned.length === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No has participado en partidas</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const lineData = [
+                              {
+                                id: 'Obtenidas',
+                                data: userStarsData.earned
+                              },
+                              {
+                                id: 'Finales',
+                                data: userStarsData.final
+                              }
+                            ];
+
+                            return (
+                              <ResponsiveLine
+                                data={lineData}
+                                margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
+                                xScale={{ type: 'point' }}
+                                yScale={{
+                                  type: 'linear',
+                                  min: 0,
+                                  max: 'auto'
+                                }}
+                                curve="monotoneX"
+                                axisTop={null}
+                                axisRight={null}
+                                axisBottom={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: 'Partida',
+                                  legendOffset: 36,
+                                  legendPosition: 'middle'
+                                }}
+                                axisLeft={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: 'Estrellas',
+                                  legendOffset: -50,
+                                  legendPosition: 'middle',
+                                  format: (value) => Math.floor(value)
+                                }}
+                                colors={['#fbbf24', '#ef4444']}
+                                pointSize={8}
+                                pointColor={{ theme: 'background' }}
+                                pointBorderWidth={2}
+                                pointBorderColor={{ from: 'serieColor' }}
+                                useMesh={true}
+                                legends={[
+                                  {
+                                    anchor: 'bottom-right',
+                                    direction: 'column',
+                                    justify: false,
+                                    translateX: 100,
+                                    translateY: 0,
+                                    itemsSpacing: 0,
+                                    itemDirection: 'left-to-right',
+                                    itemWidth: 80,
+                                    itemHeight: 20,
+                                    itemOpacity: 0.75,
+                                    symbolSize: 12,
+                                    symbolShape: 'circle',
+                                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                                    effects: [
+                                      {
+                                        on: 'hover',
+                                        style: {
+                                          itemBackground: 'rgba(0, 0, 0, .03)',
+                                          itemOpacity: 1
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]}
+                              />
+                            );
+                          })()}
+                        </div>
+                      </div>
+
+                      {/* Position Distribution Pie Chart */}
+                      <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                        <div className="flex items-center mb-4">
+                          <Trophy className="w-6 h-6 mr-2 text-yellow-500" />
+                          <h4 className="text-lg font-semibold text-gray-800">
+                            Distribución de Posiciones
+                          </h4>
+                        </div>
+
+                        <div className="h-64">
+                          {(() => {
+                            // Get user's member ID
+                            const userMember = group?.members?.find(m => m.user_id === user?.id);
+                            if (!userMember) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Trophy className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No eres miembro de este grupo</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const gamesWithResults = approvedGamesWithResults
+                              .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+                            if (gamesWithResults.length === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Trophy className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No hay datos disponibles</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            // Count positions
+                            const positionCount = {
+                              1: 0,
+                              2: 0,
+                              3: 0,
+                              4: 0
+                            };
+
+                            gamesWithResults.forEach((game) => {
+                              const userResult = game.results?.find(r => r.player_id === userMember.id);
+                              if (userResult && userResult.position >= 1 && userResult.position <= 4) {
+                                positionCount[userResult.position as 1 | 2 | 3 | 4]++;
+                              }
+                            });
+
+                            const totalGames = Object.values(positionCount).reduce((a, b) => a + b, 0);
+
+                            if (totalGames === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500">
+                                    <Trophy className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                    <p className="text-sm">No has participado en partidas</p>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            const pieData = [
+                              {
+                                id: '1° Lugar',
+                                label: '1° Lugar',
+                                value: positionCount[1],
+                                color: '#eab308'
+                              },
+                              {
+                                id: '2° Lugar',
+                                label: '2° Lugar',
+                                value: positionCount[2],
+                                color: '#9ca3af'
+                              },
+                              {
+                                id: '3° Lugar',
+                                label: '3° Lugar',
+                                value: positionCount[3],
+                                color: '#ea580c'
+                              },
+                              {
+                                id: '4° Lugar',
+                                label: '4° Lugar',
+                                value: positionCount[4],
+                                color: '#6b7280'
+                              }
+                            ].filter(item => item.value > 0);
+
+                            return (
+                              <ResponsivePie
+                                data={pieData}
+                                margin={{ top: 20, right: 80, bottom: 60, left: 80 }}
+                                innerRadius={0.5}
+                                padAngle={0.7}
+                                cornerRadius={3}
+                                activeOuterRadiusOffset={8}
+                                colors={{ datum: 'data.color' }}
+                                borderWidth={1}
+                                borderColor={{
+                                  from: 'color',
+                                  modifiers: [['darker', 0.2]]
+                                }}
+                                arcLinkLabelsSkipAngle={10}
+                                arcLinkLabelsTextColor="#333333"
+                                arcLinkLabelsThickness={2}
+                                arcLinkLabelsColor={{ from: 'color' }}
+                                arcLabelsSkipAngle={10}
+                                arcLabelsTextColor={{
+                                  from: 'color',
+                                  modifiers: [['darker', 2]]
+                                }}
+                                arcLabel={(d) => `${((d.value / totalGames) * 100).toFixed(0)}%`}
+                                legends={[
+                                  {
+                                    anchor: 'bottom',
+                                    direction: 'row',
+                                    justify: false,
+                                    translateX: 0,
+                                    translateY: 40,
+                                    itemsSpacing: 0,
+                                    itemWidth: 70,
+                                    itemHeight: 18,
+                                    itemTextColor: '#999',
+                                    itemDirection: 'left-to-right',
+                                    itemOpacity: 1,
+                                    symbolSize: 12,
+                                    symbolShape: 'circle',
+                                    effects: [
+                                      {
+                                        on: 'hover',
+                                        style: {
+                                          itemTextColor: '#000'
+                                        }
+                                      }
+                                    ]
+                                  }
+                                ]}
+                              />
+                            );
+                          })()}
+                        </div>
+                      </div>
+
+                      {/* Row 2 - Personal Minigame Bonus */}
+                      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                        <div className="flex items-center justify-center mb-3">
+                          <Target className="w-6 h-6 mr-2 text-green-500" />
+                          <h4 className="text-lg font-semibold text-gray-800">
+                            Mi Bono de Minijuegos
+                          </h4>
+                        </div>
+                        {(() => {
+                          // Get user's member ID
+                          const userMember = group?.members?.find(m => m.user_id === user?.id);
+                          if (!userMember) {
+                            return (
+                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                <div className="text-8xl font-bold text-gray-400 mb-6">--</div>
+                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">No eres miembro del grupo</p>
+                              </div>
+                            );
+                          }
+
+                          const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                          if (gamesWithResults.length === 0) {
+                            return (
+                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                <div className="text-8xl font-bold text-gray-400 mb-6">--</div>
+                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">Sin datos</p>
+                              </div>
+                            );
+                          }
+
+                          // Find games where user won the most minigames
+                          const userMinigameWins: number[] = [];
+
+                          gamesWithResults.forEach(game => {
+                            const maxMinigames = Math.max(...(game.results?.map(r => r.minigames_won) || [0]));
+                            const userResult = game.results?.find(r => r.player_id === userMember.id);
+
+                            if (userResult && maxMinigames > 0 && userResult.minigames_won === maxMinigames) {
+                              userMinigameWins.push(userResult.minigames_won);
+                            }
+                          });
+
+                          if (userMinigameWins.length === 0) {
+                            return (
+                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                <div className="text-8xl font-bold text-gray-400 mb-6">0</div>
+                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">Veces que has ganado el bono</p>
+                              </div>
+                            );
+                          }
+
+                          const average = userMinigameWins.reduce((sum, val) => sum + val, 0) / userMinigameWins.length;
+
+                          return (
+                            <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                              <div className="text-8xl font-bold text-green-600 mb-6">
+                                {average.toFixed(1)}
+                              </div>
+                              <p className="text-sm text-gray-600 text-center px-4 max-w-xs">
+                                Promedio de minijuegos cuando gané el bono
+                              </p>
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* Last Victory Timer */}
+                      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                        <div className="flex items-center justify-center mb-4">
+                          <Trophy className="w-6 h-6 mr-2 text-yellow-500" />
+                          <h4 className="text-lg font-semibold text-gray-800">
+                            Última Victoria
+                          </h4>
+                        </div>
+                        {(() => {
+                          // Get user's member ID
+                          const userMember = group?.members?.find(m => m.user_id === user?.id);
+                          if (!userMember) {
+                            return (
+                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                <div className="text-8xl font-bold text-gray-400 mb-6">--</div>
+                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">No eres miembro del grupo</p>
+                              </div>
+                            );
+                          }
+
+                          const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                          if (gamesWithResults.length === 0) {
+                            return (
+                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                <div className="text-4xl text-gray-400 mb-2">🏆</div>
+                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">Sin datos</p>
+                              </div>
+                            );
+                          }
+
+                          // Find last victory
+                          const victories = gamesWithResults
+                            .filter(game => {
+                              const userResult = game.results?.find(r => r.player_id === userMember.id);
+                              return userResult && userResult.position === 1;
+                            })
+                            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+                          if (victories.length === 0) {
+                            return (
+                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                <div className="text-8xl font-bold text-red-400 mb-6">∞</div>
+                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">Aún no tienes victorias</p>
+                              </div>
+                            );
+                          }
+
+                          const lastVictory = victories[0];
+                          const mapInfo = lastVictory.map?.name ? getMapInfo(lastVictory.map.name) : null;
+
+                          return (
+                            <LastVictoryCounter
+                              lastVictoryDate={lastVictory.created_at}
+                              mapName={lastVictory.map?.name || 'Mapa desconocido'}
+                              mapInfo={mapInfo}
+                            />
+                          );
+                        })()}
+                      </div>
+
+                      <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                        <div className="mb-3">
+                          <span className="text-3xl">🏅</span>
+                        </div>
+                        <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                          Estadística Personal 6
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          Placeholder para estadística
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

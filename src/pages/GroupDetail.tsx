@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Calendar, ArrowLeft } from 'lucide-react';
+import { Calendar, ArrowLeft, CheckCircle, XCircle, Clock, Goal, Eye, Gamepad2, ChartLine } from 'lucide-react';
+import { ResponsiveBar } from '@nivo/bar';
 import toast from 'react-hot-toast';
 import { Button, GameApprovalModal, AddCPUModal, ConfirmModal } from '../shared/components';
 import { WarioLoader, CountryFlag } from '../shared/components/ui';
@@ -313,24 +314,12 @@ export default function GroupDetail() {
 
         {/* Group Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-mario text-gray-900">{group.name}</h1>
-              {group.description && (
-                <p className="text-gray-600 mt-1">{group.description}</p>
-              )}
-              <div className="flex items-center space-x-2 mt-2">
-                <Calendar className="w-4 h-4 text-gray-400" />
-                <p className="text-sm text-gray-500">
-                  Inicio: {new Date(group.created_at).toLocaleDateString('es-ES', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
+          <div>
+            <h1 className="text-2xl font-mario text-gray-900">{group.name}</h1>
+            {group.description && (
+              <p className="text-gray-600 mt-1">{group.description}</p>
+            )}
+            <div className="mt-2">
               {group.rule_set === 'pro_bonus' ? (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
                   🏆 ProBonus
@@ -340,6 +329,16 @@ export default function GroupDetail() {
                   ⭐ Clásico
                 </span>
               )}
+            </div>
+            <div className="flex items-center space-x-2 mt-2">
+              <Calendar className="w-4 h-4 text-gray-400" />
+              <p className="text-sm text-gray-500">
+                Inicio: {new Date(group.created_at).toLocaleDateString('es-ES', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
             </div>
           </div>
         </div>
@@ -481,20 +480,21 @@ export default function GroupDetail() {
 
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-lg shadow-md p-6 min-h-[400px] flex flex-col">
-              <div className="flex items-center justify-between mb-4 gap-4">
-                <h2 className="text-xl font-mario text-gray-800 whitespace-nowrap">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                <h2 className="text-xl font-mario text-gray-800">
                   Partidas Recientes
                 </h2>
 
-                <div className="flex items-center gap-2 whitespace-nowrap ml-auto">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  {/* Botón Finalizar Liga - Solo visible en desktop */}
                   {group.league_status === 'active' && user?.id === group.creator_id && (
                     <Button
                       variant="secondary"
                       size="sm"
                       onClick={() => setShowCloseLeagueModal(true)}
-                      className="flex items-center space-x-2"
+                      className="hidden sm:flex items-center justify-center space-x-2"
                     >
-                      <span>🏆</span>
+                      <Goal className="w-4 h-4" />
                       <span>{group.rule_set === 'pro_bonus' ? 'Finalizar Liga' : 'Cerrar Liga'}</span>
                     </Button>
                   )}
@@ -503,7 +503,7 @@ export default function GroupDetail() {
                     size="sm"
                     onClick={() => navigate(`/games/new?group=${group.id}`)}
                     disabled={!isGroupFull || group.league_status === 'finalized'}
-                    className="flex items-center space-x-2"
+                    className="flex items-center justify-center space-x-2"
                   >
                     <span>+</span>
                     <span>Nueva Partida</span>
@@ -549,33 +549,66 @@ export default function GroupDetail() {
                       onClick={() => handleGameClick(game)}
                     >
                       <div>
-                        <div className="font-medium text-gray-800">
-                          Partida {game.id?.slice(0, 8)}
+                        <div className="font-medium text-gray-800 flex items-center gap-1.5">
+                          <Gamepad2 className="w-4 h-4" />
+                          <span>Partida {game.id?.slice(0, 8)}</span>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {formatGameDate(game.played_at)}
+                        <div className="text-sm text-gray-500 flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>{formatGameDate(game.played_at)}</span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          className={`p-2 rounded-full ${
                             game.status === 'approved' ? 'bg-green-100 text-green-800' :
                             game.status === 'rejected' ? 'bg-red-100 text-red-800' :
                             'bg-yellow-100 text-yellow-800'
                           }`}
-                          title={isAutoApproved(game) ? 'Auto-aprobada por ser el único jugador humano en el grupo' : ''}
+                          title={
+                            game.status === 'approved'
+                              ? (isAutoApproved(game) ? 'Auto-aprobada por ser el único jugador humano en el grupo' : 'Aprobada')
+                              : game.status === 'rejected'
+                              ? 'Rechazada'
+                              : 'Pendiente'
+                          }
                         >
-                          {game.status === 'approved' ?
-                            (isAutoApproved(game) ? '🤖 Auto-aprobada' : '✅ Aprobada') :
-                           game.status === 'rejected' ? '❌ Rechazada' :
-                           <><Calendar className="w-3 h-3 inline mr-1" /> Pendiente</>}
+                          {game.status === 'approved' ? (
+                            <CheckCircle className="w-4 h-4" />
+                          ) : game.status === 'rejected' ? (
+                            <XCircle className="w-4 h-4" />
+                          ) : (
+                            <Clock className="w-4 h-4" />
+                          )}
                         </span>
-                        <span className="text-xs text-gray-400">
-                          {game.status === 'pending' ? 'Haz clic para votar' : 'Haz clic para ver detalles'}
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                          {game.status === 'pending' ? (
+                            'Haz clic para votar'
+                          ) : (
+                            <>
+                              <Eye className="w-3 h-3" />
+                              <span>Ver detalles</span>
+                            </>
+                          )}
                         </span>
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Botón Finalizar Liga - Solo visible en móvil, debajo de la tabla */}
+              {group.league_status === 'active' && user?.id === group.creator_id && (
+                <div className="mt-4 sm:hidden">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowCloseLeagueModal(true)}
+                    className="w-full flex items-center justify-center space-x-2"
+                  >
+                    <Goal className="w-4 h-4" />
+                    <span>{group.rule_set === 'pro_bonus' ? 'Finalizar Liga' : 'Cerrar Liga'}</span>
+                  </Button>
                 </div>
               )}
             </div>
@@ -610,7 +643,7 @@ export default function GroupDetail() {
                     }`}
                   >
                     <div className="flex items-center space-x-2">
-                      <span>📊</span>
+                      <ChartLine className="w-4 h-4" />
                       <span>Estadísticas</span>
                     </div>
                   </button>
@@ -737,13 +770,7 @@ export default function GroupDetail() {
               </div>
 
                   <div className="px-6 py-4 bg-gray-50 border-t">
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <div className="text-lg font-semibold text-blue-600">
-                          {leaderboard.length}
-                        </div>
-                        <div className="text-xs text-gray-600">Jugadores Activos</div>
-                      </div>
+                    <div className="grid grid-cols-2 gap-4 text-center">
                       <div>
                         <div className="text-lg font-semibold text-green-600">
                           {group?.games?.filter(g => g.status === 'approved').length || 0}
@@ -774,88 +801,74 @@ export default function GroupDetail() {
                         </h4>
                       </div>
 
-                      {/* Vertical Bar Chart */}
+                      {/* Nivo Bar Chart */}
                       <div className="h-64">
-                        {leaderboard.length > 0 ? (
-                          <div className="h-full flex items-end justify-between gap-2 px-2">
-                            {leaderboard.slice(0, 6).map((entry, index) => {
-                              const totalGames = group?.games?.filter(g => g.status === 'approved').length || 0;
-                              const winPercentage = totalGames > 0 ? (entry.games_won / totalGames) * 100 : 0;
-                              const maxWins = Math.max(...leaderboard.slice(0, 6).map(e => e.games_won));
-                              const barHeight = maxWins > 0 ? (entry.games_won / maxWins) * 180 : 0;
+                        {leaderboard.length > 0 ? (() => {
+                          const chartData = leaderboard.slice(0, 6).map((entry, index) => ({
+                            player: entry.player_name.length > 10
+                              ? entry.player_name.substring(0, 10) + '...'
+                              : entry.player_name,
+                            fullName: entry.player_name,
+                            victories: entry.games_won,
+                            position: index + 1
+                          }));
 
-                              return (
-                                <div key={entry.player_id} className="flex-1 flex flex-col items-center">
-                                  {/* Value and Percentage */}
-                                  <div className="mb-2 text-center">
-                                    <div className="text-lg font-bold text-gray-900">
-                                      {entry.games_won}
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                      {winPercentage.toFixed(1)}%
-                                    </div>
-                                  </div>
+                          const maxVictories = Math.max(...chartData.map(d => d.victories));
+                          const tickValues = Array.from({ length: maxVictories + 1 }, (_, i) => i);
 
-                                  {/* Vertical Bar */}
-                                  <div className="w-full max-w-12 bg-gray-200 rounded-t-lg relative flex flex-col justify-end" style={{ height: '180px' }}>
-                                    <div
-                                      className={`w-full rounded-t-lg transition-all duration-500 ease-out flex items-center justify-center ${
-                                        index === 0 ? 'bg-yellow-500' :
-                                        index === 1 ? 'bg-gray-400' :
-                                        index === 2 ? 'bg-orange-600' :
-                                        'bg-blue-500'
-                                      }`}
-                                      style={{ height: `${Math.max(barHeight, 20)}px` }}
-                                    >
-                                      {/* Position Badge */}
-                                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold ${
-                                        index === 0 ? 'bg-yellow-600' :
-                                        index === 1 ? 'bg-gray-500' :
-                                        index === 2 ? 'bg-orange-700' :
-                                        'bg-blue-600'
-                                      }`}>
-                                        {index + 1}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Player Avatar */}
-                                  <div className="mt-2 flex justify-center">
-                                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center" title={entry.player_name}>
-                                      {entry.is_cpu ? (
-                                        entry.profile_picture ? (
-                                          <img
-                                            src={getCharacterImage(entry.profile_picture)}
-                                            alt={entry.player_name}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        ) : (
-                                          <span className="text-white text-xs">🤖</span>
-                                        )
-                                      ) : (
-                                        // Find the corresponding member to get profile picture
-                                        (() => {
-                                          const member = group?.members?.find(m =>
-                                            !m.is_cpu && (m.profile?.nickname === entry.player_name || m.id === entry.player_id)
-                                          );
-                                          return member?.profile?.profile_picture ? (
-                                            <img
-                                              src={getCharacterImage(member.profile.profile_picture)}
-                                              alt={entry.player_name}
-                                              className="w-full h-full object-cover"
-                                            />
-                                          ) : (
-                                            <span className="text-gray-500 text-xs">👤</span>
-                                          );
-                                        })()
-                                      )}
-                                    </div>
+                          return (
+                            <ResponsiveBar
+                              data={chartData}
+                              keys={['victories']}
+                              indexBy="player"
+                              margin={{ top: 20, right: 20, bottom: 50, left: 40 }}
+                              padding={0.4}
+                              valueScale={{ type: 'linear' }}
+                              colors={({ data }) => {
+                                const pos = data.position as number;
+                                return pos === 1 ? '#eab308' :
+                                       pos === 2 ? '#9ca3af' :
+                                       pos === 3 ? '#ea580c' :
+                                       '#3b82f6';
+                              }}
+                              borderRadius={4}
+                              axisTop={null}
+                              axisRight={null}
+                              axisBottom={{
+                                tickSize: 5,
+                                tickPadding: 5,
+                                tickRotation: -45,
+                                legend: '',
+                                legendPosition: 'middle',
+                                legendOffset: 32
+                              }}
+                              axisLeft={{
+                                tickSize: 5,
+                                tickPadding: 5,
+                                tickRotation: 0,
+                                legend: 'Victorias',
+                                legendPosition: 'middle',
+                                legendOffset: -35,
+                                tickValues: tickValues
+                              }}
+                              labelSkipWidth={12}
+                              labelSkipHeight={12}
+                              labelTextColor="#ffffff"
+                              legends={[]}
+                              tooltip={({ data }) => (
+                                <div className="bg-white px-3 py-2 shadow-lg rounded border border-gray-200">
+                                  <strong className="text-gray-800">{data.fullName}</strong>
+                                  <div className="text-sm text-gray-600">
+                                    Victorias: <strong>{data.victories}</strong>
                                   </div>
                                 </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
+                              )}
+                              animate={true}
+                              motionConfig="gentle"
+                            />
+                          );
+                        })() : null}
+                        {leaderboard.length === 0 && (
                           <div className="h-full flex items-center justify-center">
                             <div className="text-center text-gray-500">
                               <span className="text-4xl block mb-2">📊</span>

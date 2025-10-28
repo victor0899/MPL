@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, Minus } from 'lucide-react';
+import { Clock, Minus, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from './ui/Button';
 import { supabaseAPI } from '../services/supabase';
@@ -132,10 +132,20 @@ export default function GameApprovalModal({
               <div className="flex items-center justify-between mb-4 flex-shrink-0">
                 <h3 className="text-xl font-mario text-gray-800">Resultados de la Partida</h3>
                 {game.status !== 'pending' && (
-                  <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
                     game.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                   }`}>
-                    {game.status === 'approved' ? '✅ Aprobada' : '❌ Rechazada'}
+                    {game.status === 'approved' ? (
+                      <>
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Aprobada</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-4 h-4" />
+                        <span>Rechazada</span>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -315,9 +325,16 @@ export default function GameApprovalModal({
                   variant="secondary"
                   onClick={() => handleVote('reject')}
                   disabled={isVoting || hasUserVoted}
-                  className="bg-red-600 hover:bg-red-700 text-white disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed"
+                  className="bg-red-600 hover:bg-red-700 text-white disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  {isVoting ? 'Votando...' : '✗ Rechazar'}
+                  {isVoting ? (
+                    'Votando...'
+                  ) : (
+                    <>
+                      <XCircle className="w-4 h-4" />
+                      <span>Rechazar</span>
+                    </>
+                  )}
                 </Button>
 
                 <Button
@@ -325,9 +342,16 @@ export default function GameApprovalModal({
                   variant="primary"
                   onClick={() => handleVote('approve')}
                   disabled={isVoting || hasUserVoted}
-                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed"
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:text-gray-600 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  {isVoting ? 'Votando...' : '✓ Aprobar'}
+                  {isVoting ? (
+                    'Votando...'
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Aprobar</span>
+                    </>
+                  )}
                 </Button>
               </div>
 

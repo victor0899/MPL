@@ -46,33 +46,33 @@ function LastVictoryCounter({ lastVictoryDate, mapName, mapInfo }: { lastVictory
     <div className="flex flex-col items-center justify-center h-full px-4 py-2">
       {/* Map Info Above */}
       <div className="mb-4 text-center">
-        <p className="text-xs text-gray-500">{mapName}</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">{mapName}</p>
       </div>
 
       {/* Grid 2x2 */}
       <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full max-w-md">
         {/* Top Left: Días */}
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 shadow-sm">
-          <div className="text-5xl font-bold text-red-600">{days}</div>
-          <div className="text-sm text-gray-600 mt-2">Días</div>
+        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 rounded-lg p-4 shadow-sm">
+          <div className="text-5xl font-bold text-red-600 dark:text-red-300">{days}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Días</div>
         </div>
 
         {/* Top Right: Horas */}
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 shadow-sm">
-          <div className="text-5xl font-bold text-orange-600">{hours}</div>
-          <div className="text-sm text-gray-600 mt-2">Horas</div>
+        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 rounded-lg p-4 shadow-sm">
+          <div className="text-5xl font-bold text-orange-600 dark:text-orange-300">{hours}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Horas</div>
         </div>
 
         {/* Bottom Left: Minutos */}
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 shadow-sm">
-          <div className="text-5xl font-bold text-yellow-600">{minutes}</div>
-          <div className="text-sm text-gray-600 mt-2">Minutos</div>
+        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 rounded-lg p-4 shadow-sm">
+          <div className="text-5xl font-bold text-yellow-600 dark:text-yellow-300">{minutes}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Minutos</div>
         </div>
 
         {/* Bottom Right: Segundos */}
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 shadow-sm">
-          <div className="text-5xl font-bold text-green-600">{seconds}</div>
-          <div className="text-sm text-gray-600 mt-2">Segundos</div>
+        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-lg p-4 shadow-sm">
+          <div className="text-5xl font-bold text-green-600 dark:text-green-300">{seconds}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Segundos</div>
         </div>
       </div>
     </div>
@@ -343,7 +343,7 @@ export default function GroupDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto py-8 px-4">
           <WarioLoader text="Cargando grupo..." size="md" />
         </div>
@@ -353,10 +353,10 @@ export default function GroupDetail() {
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto py-8 px-4">
           <div className="text-center py-12">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Grupo no encontrado</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">Grupo no encontrado</h2>
             <Link to="/groups">
               <Button variant="primary">Volver a Mis Grupos</Button>
             </Link>
@@ -371,13 +371,13 @@ export default function GroupDetail() {
   const cpuMembers = group.members?.filter(m => m.is_cpu) || [];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="w-full py-8 px-4">
         {/* Back to Dashboard Button */}
         <div className="mb-6">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+            className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Dashboard</span>
@@ -385,11 +385,11 @@ export default function GroupDetail() {
         </div>
 
         {/* Group Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
           <div>
-            <h1 className="text-2xl font-mario text-gray-900">{group.name}</h1>
+            <h1 className="text-2xl font-mario text-gray-900 dark:text-gray-100">{group.name}</h1>
             {group.description && (
-              <p className="text-gray-600 mt-1">{group.description}</p>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">{group.description}</p>
             )}
             <div className="mt-2">
               {group.rule_set === 'pro_bonus' ? (
@@ -403,8 +403,8 @@ export default function GroupDetail() {
               )}
             </div>
             <div className="flex items-center space-x-2 mt-2">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <p className="text-sm text-gray-500">
+              <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Inicio: {new Date(group.created_at).toLocaleDateString('es-ES', {
                   year: 'numeric',
                   month: 'long',
@@ -417,14 +417,14 @@ export default function GroupDetail() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6 flex flex-col">
-            <div className="bg-white rounded-lg shadow-md p-6 flex-1 flex flex-col">
-              <h2 className="text-xl font-mario text-gray-800 mb-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex-1 flex flex-col">
+              <h2 className="text-xl font-mario text-gray-800 dark:text-gray-100 mb-4">
                 Miembros ({group.members?.length || 0}/{group.max_members})
               </h2>
 
               <div className="space-y-3">
                 {humanMembers.map((member, index) => (
-                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
                       {member.profile?.profile_picture ? (
                         <img
@@ -438,7 +438,7 @@ export default function GroupDetail() {
                     </div>
                     <div className="flex-1 text-left">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-gray-800">
+                        <span className="font-medium text-gray-800 dark:text-gray-100">
                           {member.profile?.nickname || 'Usuario sin nombre'}
                         </span>
                         <div className="flex items-center">
@@ -453,7 +453,7 @@ export default function GroupDetail() {
                 ))}
 
                 {cpuMembers.map((member) => (
-                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-purple-50 rounded-lg">
+                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-purple-50 dark:bg-purple-900 rounded-lg">
                     <div className="w-10 h-10 rounded-full overflow-hidden bg-purple-500 flex items-center justify-center">
                       {member.cpu_avatar ? (
                         <img
@@ -467,7 +467,7 @@ export default function GroupDetail() {
                     </div>
                     <div className="flex-1 text-left">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-gray-800">{member.cpu_name}</span>
+                        <span className="font-medium text-gray-800 dark:text-gray-100">{member.cpu_name}</span>
                         <div className="flex items-center">
                           <CountryFlag
                             countryCode={DEFAULT_COUNTRY.code}
@@ -475,18 +475,18 @@ export default function GroupDetail() {
                           />
                         </div>
                       </div>
-                      <div className="text-sm text-purple-600">CPU Player</div>
+                      <div className="text-sm text-purple-600 dark:text-purple-300">CPU Player</div>
                     </div>
                   </div>
                 ))}
 
                 {Array.from({ length: group.max_members - (group.members?.length || 0) }).map((_, index) => (
-                  <div key={`empty-${index}`} className="flex items-center space-x-3 p-3 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
-                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-500">
+                  <div key={`empty-${index}`} className="flex items-center space-x-3 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                    <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
                       ?
                     </div>
                     <div className="flex-1 text-left">
-                      <div className="text-gray-500">Slot disponible</div>
+                      <div className="text-gray-500 dark:text-gray-400">Slot disponible</div>
                     </div>
                   </div>
                 ))}
@@ -507,18 +507,18 @@ export default function GroupDetail() {
             </div>
 
             {!isGroupFull && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-mario text-gray-800 mb-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-mario text-gray-800 dark:text-gray-100 mb-4">
                   Invitar Jugadores
                 </h2>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Código de Invitación
                     </label>
                     <div className="flex items-center space-x-2">
-                      <code className="flex-1 text-lg font-mono bg-gray-100 px-3 py-2 rounded border">
+                      <code className="flex-1 text-lg font-mono bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
                         {group.invite_code}
                       </code>
                       <button
@@ -541,7 +541,7 @@ export default function GroupDetail() {
                       📤 Copiar Enlace de Invitación
                     </Button>
 
-                    <div className="text-xs text-gray-500 text-center">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
                       Comparte este enlace con tus amigos para que se unan
                     </div>
                   </div>
@@ -551,9 +551,9 @@ export default function GroupDetail() {
           </div>
 
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-lg shadow-md p-6 min-h-[400px] flex flex-col">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 min-h-[400px] flex flex-col">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-                <h2 className="text-xl font-mario text-gray-800">
+                <h2 className="text-xl font-mario text-gray-800 dark:text-gray-100">
                   Partidas Recientes
                 </h2>
 
@@ -601,10 +601,10 @@ export default function GroupDetail() {
                         className="w-64 h-64 object-contain"
                       />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-800 mb-2">
+                    <h3 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-2">
                       No hay partidas registradas
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-300">
                       {!isGroupFull
                         ? `Necesitas ${group.max_members - (group.members?.length || 0)} jugador(es) más para empezar a jugar`
                         : 'Las partidas aparecerán aquí una vez que se registren'
@@ -617,15 +617,15 @@ export default function GroupDetail() {
                   {group.games.map((game) => (
                     <div
                       key={game.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                       onClick={() => handleGameClick(game)}
                     >
                       <div>
-                        <div className="font-medium text-gray-800 flex items-center gap-1.5">
+                        <div className="font-medium text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
                           <Gamepad2 className="w-4 h-4" />
                           <span>Partida {game.id?.slice(0, 8)}</span>
                         </div>
-                        <div className="text-sm text-gray-500 flex items-center gap-1.5">
+                        <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5" />
                           <span>{formatGameDate(game.played_at)}</span>
                         </div>
@@ -689,16 +689,16 @@ export default function GroupDetail() {
 
         {leaderboard.length > 0 && (
           <div className="mt-8">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
               {/* Tab Navigation */}
-              <div className="border-b border-gray-200">
+              <div className="border-b border-gray-200 dark:border-gray-700">
                 <nav className="flex space-x-8 px-6" aria-label="Tabs">
                   <button
                     onClick={() => setActiveTab('leaderboard')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === 'leaderboard'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
                     <div className="flex items-center space-x-2">
@@ -710,8 +710,8 @@ export default function GroupDetail() {
                     onClick={() => setActiveTab('statistics')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                       activeTab === 'statistics'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                        : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
                     <div className="flex items-center space-x-2">
@@ -727,29 +727,29 @@ export default function GroupDetail() {
                 <>
                   <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Pos
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Jugador
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Puntos
                       </th>
                       {group?.rule_set !== 'pro_bonus' && (
                         <>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Victorias
                           </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             <div className="flex items-center justify-center space-x-1">
                               <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
                               <span>Estrellas</span>
                             </div>
                           </th>
-                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             <div className="flex items-center justify-center space-x-1">
                               <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
                               <span>Monedas</span>
@@ -757,22 +757,22 @@ export default function GroupDetail() {
                           </th>
                         </>
                       )}
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Partidas
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {leaderboard.map((entry, index) => (
                       <tr key={entry.player_id} className={`
-                        ${index === 0 ? 'bg-yellow-50' : ''}
-                        ${index === 1 ? 'bg-gray-50' : ''}
-                        ${index === 2 ? 'bg-orange-50' : ''}
-                        hover:bg-blue-50 transition-colors
+                        ${index === 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : ''}
+                        ${index === 1 ? 'bg-gray-50 dark:bg-gray-700' : ''}
+                        ${index === 2 ? 'bg-orange-50 dark:bg-orange-900/20' : ''}
+                        hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors
                       `}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center justify-center">
-                            <span className="text-4xl font-mario text-gray-800">
+                            <span className="text-4xl font-mario text-gray-800 dark:text-gray-100">
                               {index + 1}
                             </span>
                           </div>
@@ -797,41 +797,41 @@ export default function GroupDetail() {
                               </div>
                             </div>
                             <div className="ml-3">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {entry.player_name}
                               </div>
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
                                 {entry.is_cpu ? 'CPU Player' : 'Jugador'}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-lg font-bold text-gray-900">
+                          <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
                             {entry.total_league_points}
                           </div>
                         </td>
                         {group?.rule_set !== 'pro_bonus' && (
                           <>
                             <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <div className="text-sm text-gray-900">
+                              <div className="text-sm text-gray-900 dark:text-gray-100">
                                 {entry.games_won}
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <div className="text-sm text-gray-900">
+                              <div className="text-sm text-gray-900 dark:text-gray-100">
                                 {entry.total_stars}
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-center">
-                              <div className="text-sm text-gray-900">
+                              <div className="text-sm text-gray-900 dark:text-gray-100">
                                 {entry.total_coins}
                               </div>
                             </td>
                           </>
                         )}
                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <div className="text-sm text-gray-900">
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
                             {entry.games_played}
                           </div>
                         </td>
@@ -853,8 +853,8 @@ export default function GroupDetail() {
                       disabled={statsMode === 'general'}
                       className={`p-2 rounded-full transition-colors ${
                         statsMode === 'general'
-                          ? 'text-gray-300 cursor-not-allowed'
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                     >
                       <ChevronLeft className="w-6 h-6" />
@@ -863,13 +863,13 @@ export default function GroupDetail() {
                     <div className="flex items-center gap-3">
                       {statsMode === 'general' ? (
                         <>
-                          <ChartLine className="w-6 h-6 text-blue-600" />
-                          <h3 className="text-2xl font-bold text-gray-800">Estadísticas Generales</h3>
+                          <ChartLine className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Estadísticas Generales</h3>
                         </>
                       ) : (
                         <>
-                          <User className="w-6 h-6 text-purple-600" />
-                          <h3 className="text-2xl font-bold text-gray-800">Estadísticas Personales</h3>
+                          <User className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                          <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Estadísticas Personales</h3>
                         </>
                       )}
                     </div>
@@ -879,8 +879,8 @@ export default function GroupDetail() {
                       disabled={statsMode === 'personal'}
                       className={`p-2 rounded-full transition-colors ${
                         statsMode === 'personal'
-                          ? 'text-gray-300 cursor-not-allowed'
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                     >
                       <ChevronRight className="w-6 h-6" />
@@ -891,10 +891,10 @@ export default function GroupDetail() {
                   {statsMode === 'general' && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Row 1 - Victory Statistics */}
-                    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                    <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                       <div className="flex items-center mb-4">
-                        <Trophy className="w-6 h-6 mr-2 text-yellow-500" />
-                        <h4 className="text-lg font-semibold text-gray-800">
+                        <Trophy className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                           Victorias
                         </h4>
                       </div>
@@ -954,9 +954,9 @@ export default function GroupDetail() {
                               labelTextColor="#ffffff"
                               legends={[]}
                               tooltip={({ data }) => (
-                                <div className="bg-white px-3 py-2 shadow-lg rounded border border-gray-200">
-                                  <strong className="text-gray-800">{data.fullName}</strong>
-                                  <div className="text-sm text-gray-600">
+                                <div className="bg-white dark:bg-gray-800 px-3 py-2 shadow-lg rounded border border-gray-200 dark:border-gray-600">
+                                  <strong className="text-gray-800 dark:text-gray-100">{data.fullName}</strong>
+                                  <div className="text-sm text-gray-600 dark:text-gray-300">
                                     Victorias: <strong>{data.victories}</strong>
                                   </div>
                                 </div>
@@ -968,7 +968,7 @@ export default function GroupDetail() {
                         })() : null}
                         {leaderboard.length === 0 && (
                           <div className="h-full flex items-center justify-center">
-                            <div className="text-center text-gray-500">
+                            <div className="text-center text-gray-500 dark:text-gray-400">
                               <span className="text-4xl block mb-2">📊</span>
                               <p className="text-sm">No hay datos disponibles</p>
                             </div>
@@ -979,10 +979,10 @@ export default function GroupDetail() {
                     </div>
 
                     {/* Bump Chart - Evolución de Posiciones */}
-                    <div className="md:col-span-2 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                    <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                       <div className="flex items-center mb-4">
-                        <TrendingUpDown className="w-6 h-6 mr-2 text-blue-500" />
-                        <h4 className="text-lg font-semibold text-gray-800">
+                        <TrendingUpDown className="w-6 h-6 mr-2 text-blue-500 dark:text-blue-400" />
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                           Evolución de Posiciones
                         </h4>
                       </div>
@@ -996,8 +996,8 @@ export default function GroupDetail() {
                           if (approvedGames.length === 0) {
                             return (
                               <div className="h-full flex items-center justify-center">
-                                <div className="text-center text-gray-500">
-                                  <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                <div className="text-center text-gray-500 dark:text-gray-400">
+                                  <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
                                   <p className="text-sm">No hay suficientes partidas para mostrar evolución</p>
                                 </div>
                               </div>
@@ -1039,8 +1039,8 @@ export default function GroupDetail() {
                           if (bumpData.length === 0) {
                             return (
                               <div className="h-full flex items-center justify-center">
-                                <div className="text-center text-gray-500">
-                                  <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                <div className="text-center text-gray-500 dark:text-gray-400">
+                                  <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
                                   <p className="text-sm">No hay datos disponibles</p>
                                 </div>
                               </div>
@@ -1095,10 +1095,10 @@ export default function GroupDetail() {
                     </div>
 
                     {/* Row 2 - Average Minigames for Bonus */}
-                    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                    <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
                       <div className="flex items-center justify-center mb-3">
-                        <Target className="w-6 h-6 mr-2 text-green-500" />
-                        <h4 className="text-lg font-semibold text-gray-800">
+                        <Target className="w-6 h-6 mr-2 text-green-500 dark:text-green-400" />
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                           Bono de Minijuegos
                         </h4>
                       </div>
@@ -1108,8 +1108,8 @@ export default function GroupDetail() {
                         if (gamesWithResults.length === 0) {
                           return (
                             <div className="text-center">
-                              <div className="text-3xl text-gray-400 mb-2">--</div>
-                              <p className="text-xs text-gray-500">Sin datos</p>
+                              <div className="text-3xl text-gray-400 dark:text-gray-500 mb-2">--</div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Sin datos</p>
                             </div>
                           );
                         }
@@ -1123,8 +1123,8 @@ export default function GroupDetail() {
                         if (maxMinigamesPerGame.length === 0) {
                           return (
                             <div className="text-center">
-                              <div className="text-3xl text-gray-400 mb-2">--</div>
-                              <p className="text-xs text-gray-500">Sin datos</p>
+                              <div className="text-3xl text-gray-400 dark:text-gray-500 mb-2">--</div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Sin datos</p>
                             </div>
                           );
                         }
@@ -1133,10 +1133,10 @@ export default function GroupDetail() {
 
                         return (
                           <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                            <div className="text-8xl font-bold text-green-600 mb-6">
+                            <div className="text-8xl font-bold text-green-600 dark:text-green-400 mb-6">
                               {average.toFixed(1)}
                             </div>
-                            <p className="text-sm text-gray-600 text-center px-4 max-w-xs">
+                            <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">
                               Promedio de minijuegos necesarios para ganar el bono
                             </p>
                           </div>
@@ -1145,10 +1145,10 @@ export default function GroupDetail() {
                     </div>
 
                     {/* Total Coins Earned per Game */}
-                    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                    <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                       <div className="flex items-center mb-4">
-                        <Coins className="w-6 h-6 mr-2 text-yellow-500" />
-                        <h4 className="text-lg font-semibold text-gray-800">
+                        <Coins className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                           Monedas Obtenidas por Partida
                         </h4>
                       </div>
@@ -1161,8 +1161,8 @@ export default function GroupDetail() {
                           if (gamesWithResults.length === 0) {
                             return (
                               <div className="h-full flex items-center justify-center">
-                                <div className="text-center text-gray-500">
-                                  <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                <div className="text-center text-gray-500 dark:text-gray-400">
+                                  <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
                                   <p className="text-sm">No hay datos disponibles</p>
                                 </div>
                               </div>
@@ -1229,14 +1229,14 @@ export default function GroupDetail() {
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center border-2 border-dashed border-gray-300 dark:border-gray-600">
                       <div className="mb-3">
                         <span className="text-3xl">🏅</span>
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                      <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
                         Estadística 6
                       </h4>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
                         Placeholder para estadística
                       </p>
                     </div>
@@ -1247,10 +1247,10 @@ export default function GroupDetail() {
                   {statsMode === 'personal' && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {/* Row 1 - Personal Coins Chart */}
-                      <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                      <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center mb-4">
-                          <Coins className="w-6 h-6 mr-2 text-yellow-500" />
-                          <h4 className="text-lg font-semibold text-gray-800">
+                          <Coins className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                             Mis Monedas por Partida
                           </h4>
                         </div>
@@ -1395,10 +1395,10 @@ export default function GroupDetail() {
                       </div>
 
                       {/* Personal Stars Chart */}
-                      <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                      <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center mb-4">
-                          <Star className="w-6 h-6 mr-2 text-yellow-500" />
-                          <h4 className="text-lg font-semibold text-gray-800">
+                          <Star className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                             Mis Estrellas por Partida
                           </h4>
                         </div>
@@ -1543,10 +1543,10 @@ export default function GroupDetail() {
                       </div>
 
                       {/* Position Distribution Pie Chart */}
-                      <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                      <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center mb-4">
-                          <Trophy className="w-6 h-6 mr-2 text-yellow-500" />
-                          <h4 className="text-lg font-semibold text-gray-800">
+                          <Trophy className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                             Distribución de Posiciones
                           </h4>
                         </div>
@@ -1691,10 +1691,10 @@ export default function GroupDetail() {
                       </div>
 
                       {/* Row 2 - Personal Minigame Bonus */}
-                      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                      <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center justify-center mb-3">
-                          <Target className="w-6 h-6 mr-2 text-green-500" />
-                          <h4 className="text-lg font-semibold text-gray-800">
+                          <Target className="w-6 h-6 mr-2 text-green-500 dark:text-green-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                             Mi Bono de Minijuegos
                           </h4>
                         </div>
@@ -1758,10 +1758,10 @@ export default function GroupDetail() {
                       </div>
 
                       {/* Last Victory Timer */}
-                      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                      <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center justify-center mb-3">
-                          <Trophy className="w-6 h-6 mr-2 text-yellow-500" />
-                          <h4 className="text-lg font-semibold text-gray-800">
+                          <Trophy className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                             Última Victoria
                           </h4>
                         </div>
@@ -1818,14 +1818,14 @@ export default function GroupDetail() {
                         })()}
                       </div>
 
-                      <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-300">
+                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center border-2 border-dashed border-gray-300 dark:border-gray-600">
                         <div className="mb-3">
                           <span className="text-3xl">🏅</span>
                         </div>
-                        <h4 className="text-lg font-semibold text-gray-800 mb-2">
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
                           Estadística Personal 6
                         </h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
                           Placeholder para estadística
                         </p>
                       </div>

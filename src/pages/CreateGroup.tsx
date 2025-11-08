@@ -112,7 +112,7 @@ export default function CreateGroup() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto py-8 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
             <div className="mb-8">
               <h2 className="text-3xl font-mario text-gray-900">
                 Crea tu grupo
@@ -136,7 +136,7 @@ export default function CreateGroup() {
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 text-left">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 text-left">
                       Descripción (opcional)
                     </label>
                     <textarea

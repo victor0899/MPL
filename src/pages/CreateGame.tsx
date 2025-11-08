@@ -420,7 +420,7 @@ export default function CreateGame() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto py-8 px-4">
           <WarioLoader text="Cargando..." size="md" />
         </div>
@@ -430,7 +430,7 @@ export default function CreateGame() {
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="container mx-auto py-8 px-4">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Grupo no encontrado</h2>
@@ -444,7 +444,7 @@ export default function CreateGame() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto py-8 px-4">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">

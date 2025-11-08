@@ -56,13 +56,13 @@ export default function JoinGroup() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Container maxWidth="sm" className="py-16">
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
               Unirse a Grupo
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               Necesitas iniciar sesión para unirte a un grupo
             </p>
             <div className="space-y-3">
@@ -80,7 +80,7 @@ export default function JoinGroup() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Container maxWidth="sm" className="py-16">
           <WarioLoader text="Cargando grupo..." size="md" />
         </Container>
@@ -90,9 +90,9 @@ export default function JoinGroup() {
 
   if (error || !group) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Container maxWidth="sm" className="py-16">
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
             <div className="mb-4 flex justify-center">
               <img
                 src="/images/others/boo.webp"
@@ -100,10 +100,10 @@ export default function JoinGroup() {
                 className="w-24 h-24 object-contain"
               />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
               Grupo no encontrado
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               {error || 'No se pudo encontrar el grupo con este código de invitación'}
             </p>
             <Link to="/dashboard">
@@ -121,9 +121,9 @@ export default function JoinGroup() {
   const isMember = group.members?.some(m => m.user_id === user.id);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Container maxWidth="sm" className="py-16">
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
           <div className="text-center mb-6">
             <div className="mb-4 flex justify-center">
               <img
@@ -132,11 +132,11 @@ export default function JoinGroup() {
                 className="w-32 h-32 object-contain"
               />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
               {group.name}
             </h1>
             {group.description && (
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
                 {group.description}
               </p>
             )}

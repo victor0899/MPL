@@ -79,7 +79,7 @@ export default function Dashboard() {
     <div className="container mx-auto py-8 px-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-mario text-gray-900">
+          <h1 className="text-3xl font-mario text-gray-900 dark:text-gray-100">
             Dashboard
           </h1>
         </div>
@@ -97,7 +97,7 @@ export default function Dashboard() {
         {isLoading ? (
           <WarioLoader text="Cargando grupos..." size="md" />
         ) : groups.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
             <div className="mb-4 flex justify-center">
               <img
                 src="/images/others/boo.webp"
@@ -105,10 +105,10 @@ export default function Dashboard() {
                 className="w-24 h-24 object-contain"
               />
             </div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
               No tienes grupos todavía
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Crea tu primera Mario Party League para empezar a competir
             </p>
           </div>
@@ -125,11 +125,11 @@ export default function Dashboard() {
                 const approvedGamesCount = group.games?.filter(g => g.status === 'approved').length || 0;
 
                 return (
-                  <div key={group.id} className="bg-white rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                  <div key={group.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <div className="p-6 text-center">
                       {/* Header with title, badge and menu */}
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-mario text-gray-900 flex-1">
+                        <h3 className="text-lg font-mario text-gray-900 dark:text-gray-100 flex-1">
                           {group.name}
                         </h3>
                         <div className="flex items-center space-x-2">
@@ -156,9 +156,9 @@ export default function Dashboard() {
                                 e.stopPropagation();
                                 setOpenMenuId(openMenuId === group.id ? null : group.id);
                               }}
-                              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
                             >
-                              <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                              <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                               </svg>
                             </button>
@@ -169,7 +169,7 @@ export default function Dashboard() {
                                   className="fixed inset-0 z-10"
                                   onClick={() => setOpenMenuId(null)}
                                 />
-                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-20">
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -202,7 +202,7 @@ export default function Dashboard() {
                       {/* Descripción centrada */}
                       {group.description && (
                         <div className="mb-4">
-                          <p className="text-gray-500 text-sm">
+                          <p className="text-gray-500 dark:text-gray-400 text-sm">
                             {group.description}
                           </p>
                         </div>
@@ -219,20 +219,20 @@ export default function Dashboard() {
 
                       <div className="space-y-3 mb-6">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-500">Miembros:</span>
+                          <span className="text-gray-500 dark:text-gray-400">Miembros:</span>
                           <div className="flex items-center space-x-2">
                             {group.members && group.members.length > 0 ? (
                               <MemberAvatars members={group.members} maxDisplay={4} size="sm" />
                             ) : (
-                              <span className="font-medium text-gray-600">
+                              <span className="font-medium text-gray-600 dark:text-gray-300">
                                 0/{group.max_members}
                               </span>
                             )}
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-500">Partidas:</span>
-                          <span className="font-bold text-gray-900 text-base">
+                          <span className="text-gray-500 dark:text-gray-400">Partidas:</span>
+                          <span className="font-bold text-gray-900 dark:text-gray-100 text-base">
                             {approvedGamesCount}
                           </span>
                         </div>
@@ -254,13 +254,13 @@ export default function Dashboard() {
               return (
                 <div>
                   {/* Tabs */}
-                  <div className="flex border-b border-gray-200 mb-6">
+                  <div className="flex border-b border-gray-200 dark:border-gray-700 mb-6">
                     <button
                       onClick={() => setActiveTab('active')}
                       className={`px-4 py-2 font-medium text-sm transition-colors border-b-2 ${
                         activeTab === 'active'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                          ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                          : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                       }`}
                     >
                       Activas ({activeGroups.length})
@@ -269,8 +269,8 @@ export default function Dashboard() {
                       onClick={() => setActiveTab('finalized')}
                       className={`px-4 py-2 font-medium text-sm transition-colors border-b-2 ${
                         activeTab === 'finalized'
-                          ? 'border-blue-500 text-blue-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                          ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                          : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                       }`}
                     >
                       Finalizadas ({finalizedGroups.length})
@@ -279,7 +279,7 @@ export default function Dashboard() {
 
                   {/* Content */}
                   {displayGroups.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
                       <div className="mb-4 flex justify-center">
                         <img
                           src="/images/others/boo.webp"
@@ -287,10 +287,10 @@ export default function Dashboard() {
                           className="w-24 h-24 object-contain"
                         />
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                      <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
                         No hay ligas {activeTab === 'active' ? 'activas' : 'finalizadas'}
                       </h3>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-300">
                         {activeTab === 'active'
                           ? 'Crea una nueva liga o únete a una existente'
                           : 'Aún no has finalizado ninguna liga'}

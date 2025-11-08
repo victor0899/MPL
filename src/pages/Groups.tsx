@@ -50,25 +50,25 @@ export default function Groups() {
   };
 
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <div>Cargando...</div>
+    return <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="text-gray-800 dark:text-gray-100">Cargando...</div>
     </div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto py-8 px-4">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="text-gray-500">Cargando grupos...</div>
+            <div className="text-gray-500 dark:text-gray-400">Cargando grupos...</div>
           </div>
         ) : groups.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🎮</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">
               No tienes grupos todavía
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               Crea tu primera Mario Party League para empezar a competir
             </p>
             <Link to="/groups/new">
@@ -80,15 +80,15 @@ export default function Groups() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groups.map((group) => (
-              <div key={group.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
+              <div key={group.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                      <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-1">
                         {group.name}
                       </h3>
                       {group.description && (
-                        <p className="text-gray-600 text-sm">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">
                           {group.description}
                         </p>
                       )}
@@ -108,25 +108,25 @@ export default function Groups() {
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Miembros:</span>
-                      <span className="font-medium">
+                      <span className="text-gray-500 dark:text-gray-400">Miembros:</span>
+                      <span className="font-medium text-gray-800 dark:text-gray-100">
                         {group.members?.length || 0}/{group.max_members}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Partidas:</span>
-                      <span className="font-medium">
+                      <span className="text-gray-500 dark:text-gray-400">Partidas:</span>
+                      <span className="font-medium text-gray-800 dark:text-gray-100">
                         {group.games?.length || 0}
                       </span>
                     </div>
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-xs font-medium text-gray-500 mb-1">
+                    <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                       Código de Invitación
                     </label>
                     <div className="flex items-center space-x-2">
-                      <code className="flex-1 text-sm font-mono bg-gray-100 px-3 py-2 rounded border">
+                      <code className="flex-1 text-sm font-mono bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100">
                         {group.invite_code}
                       </code>
                       <button

@@ -129,22 +129,22 @@ export default function CompleteProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-mario text-gray-900 mb-2">
+          <h2 className="text-3xl font-mario text-gray-900 dark:text-gray-100 mb-2">
             Completa tu Perfil
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             ¡Bienvenido! Para continuar, necesitamos que completes tu perfil
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Nickname
                 </label>
                 <input
@@ -152,7 +152,7 @@ export default function CompleteProfile() {
                   value={formData.nickname}
                   onChange={(e) => setFormData(prev => ({ ...prev, nickname: e.target.value }))}
                   placeholder="Tu nickname único"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   required
                 />
                 {formData.nickname.length >= 3 && (
@@ -189,7 +189,7 @@ export default function CompleteProfile() {
 
               {/* Selección de Foto de Perfil */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
                   Elige tu Personaje de Mario Party
                 </label>
                 <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
@@ -200,8 +200,8 @@ export default function CompleteProfile() {
                       onClick={() => setFormData(prev => ({ ...prev, profilePicture: character.id }))}
                       className={`relative rounded-lg overflow-hidden transition-all duration-200 ${
                         formData.profilePicture === character.id
-                          ? 'ring-4 ring-blue-500 scale-105 shadow-lg'
-                          : 'ring-2 ring-gray-200 hover:ring-blue-300 hover:scale-102'
+                          ? 'ring-4 ring-blue-500 dark:ring-blue-400 scale-105 shadow-lg'
+                          : 'ring-2 ring-gray-200 dark:ring-gray-600 hover:ring-blue-300 hover:scale-102'
                       }`}
                       title={character.name}
                     >

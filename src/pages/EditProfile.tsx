@@ -102,19 +102,19 @@ export default function EditProfile() {
     <div className="container mx-auto py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-mario text-gray-900 mb-2">
+          <h1 className="text-3xl font-mario text-gray-900 dark:text-gray-100 mb-2">
             Editar Perfil
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Actualiza tu información personal y preferencias
           </p>
         </div>
 
-        <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Personaje Favorito *
                 </label>
                 <div className="grid grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -156,7 +156,7 @@ export default function EditProfile() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                   Nacionalidad
                 </label>
                 <div className="max-h-48 overflow-y-auto p-4 bg-gray-50 rounded-lg border border-gray-200">

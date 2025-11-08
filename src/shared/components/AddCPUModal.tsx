@@ -88,10 +88,10 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Seleccionar Personaje
             </label>
             <div className="grid grid-cols-4 gap-3 max-h-60 overflow-y-auto">
@@ -101,8 +101,8 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
                   onClick={() => setSelectedAvatar(character.id)}
                   className={`p-2 rounded-lg border-2 transition-all hover:scale-105 ${
                     selectedAvatar === character.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                   }`}
                   title={character.name}
                 >
@@ -114,7 +114,7 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
                     />
                   </div>
                   <div className={`text-xs font-medium mt-1 truncate ${
-                    selectedAvatar === character.id ? 'text-blue-700' : 'text-gray-600'
+                    selectedAvatar === character.id ? 'text-blue-700 dark:text-blue-300' : 'text-gray-600 dark:text-gray-300'
                   }`}>
                     {character.name}
                   </div>
@@ -124,7 +124,7 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Nombre del CPU
             </label>
             <input
@@ -132,13 +132,13 @@ export default function AddCPUModal({ isOpen, onClose, onAdd, isLoading = false 
               value={cpuName}
               onChange={(e) => setCpuName(e.target.value)}
               placeholder="Ingresa el nombre del CPU"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               disabled={isLoading}
             />
           </div>
         </div>
 
-        <div className="p-6 border-t border-gray-200">
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700">
           <div className="flex space-x-3">
             <Button
               variant="primary"

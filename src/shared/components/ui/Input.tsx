@@ -23,9 +23,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="space-y-2">
         {label && (
-          <label htmlFor={inputId} className="block text-sm font-medium text-gray-900 text-left">
+          <label htmlFor={inputId} className="block text-sm font-medium text-gray-900 dark:text-gray-100 text-left">
             {label}
-            {props.required && <span className="text-red-400 ml-1">*</span>}
+            {props.required && <span className="text-red-400 dark:text-red-300 ml-1">*</span>}
           </label>
         )}
         <div className="relative">
@@ -45,7 +45,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {shouldShowToggle && (
             <button
               type="button"
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               onClick={() => setShowPassword(!showPassword)}
               aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             >
@@ -58,10 +58,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && (
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         )}
         {helperText && !error && (
-          <p className="text-sm text-gray-500">{helperText}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{helperText}</p>
         )}
       </div>
     );

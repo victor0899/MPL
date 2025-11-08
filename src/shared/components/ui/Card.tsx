@@ -72,7 +72,7 @@ export const CardDescription = forwardRef<HTMLParagraphElement, CardDescriptionP
     return (
       <p
         ref={ref}
-        className={cn('text-sm text-gray-500', className)}
+        className={cn('text-sm text-gray-500 dark:text-gray-400', className)}
         {...props}
       >
         {children}

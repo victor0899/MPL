@@ -167,6 +167,7 @@ function App() {
         position="top-right"
         toastOptions={{
           duration: 4000,
+          className: 'dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700',
           style: {
             background: '#ffffff',
             color: '#374151',

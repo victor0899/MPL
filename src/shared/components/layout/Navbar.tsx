@@ -84,11 +84,11 @@ export default function Navbar() {
   const selectedCharacter = getCharacterImage(profile?.profile_picture || 'mario');
 
   return (
-    <nav className={`bg-white shadow-md border-b border-gray-200 transition-opacity duration-500 ${isLoggingOut ? 'opacity-50' : 'opacity-100'}`}>
+    <nav className={`bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 transition-opacity duration-500 ${isLoggingOut ? 'opacity-50' : 'opacity-100'}`}>
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <Link to="/dashboard" className="flex items-center space-x-2">
-            <h1 className="text-2xl font-mario text-gray-800 hover:text-blue-600 transition-colors">
+            <h1 className="text-2xl font-mario text-gray-800 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               Mario Party League
             </h1>
           </Link>
@@ -97,9 +97,9 @@ export default function Navbar() {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
                 <img
                   src={selectedCharacter}
                   alt={profile?.nickname || 'Usuario'}
@@ -108,16 +108,16 @@ export default function Navbar() {
               </div>
 
               <div className="hidden sm:block text-left max-w-32">
-                <div className="text-sm font-medium text-gray-800 truncate">
+                <div className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
                   {profile?.nickname || 'Usuario'}
                 </div>
-                <div className="text-xs text-gray-500 truncate">
+                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {user?.email}
                 </div>
               </div>
 
               <svg
-                className={`w-4 h-4 text-gray-500 transition-transform ${
+                className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform ${
                   isDropdownOpen ? 'rotate-180' : ''
                 }`}
                 fill="none"
@@ -134,22 +134,22 @@ export default function Navbar() {
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                <div className="px-4 py-2 border-b border-gray-100">
-                  <div className="text-sm font-medium text-gray-800 truncate">
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                  <div className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
                     {profile?.nickname || 'Usuario'}
                   </div>
-                  <div className="text-xs text-gray-500 truncate" title={user?.email}>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 truncate" title={user?.email}>
                     {user?.email}
                   </div>
                 </div>
 
                 <Link
                   to="/edit-profile"
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 mr-3 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   Editar Perfil
@@ -158,7 +158,7 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoggingOut ? (
                     <div className="w-4 h-4 mr-3 border-2 border-red-300 border-t-red-600 rounded-full animate-spin"></div>

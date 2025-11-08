@@ -889,7 +889,7 @@ export default function GroupDetail() {
 
                   {/* General Statistics */}
                   {statsMode === 'general' && (
-                  <div className="grid grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Row 1 - Victory Statistics */}
                     <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                       <div className="flex items-center mb-4">
@@ -900,7 +900,7 @@ export default function GroupDetail() {
                       </div>
 
                       {/* Nivo Bar Chart */}
-                      <div className="h-64">
+                      <div className="h-80 md:h-64">
                         {leaderboard.length > 0 ? (() => {
                           const chartData = leaderboard.slice(0, 6).map((entry, index) => ({
                             player: entry.player_name.length > 10
@@ -979,7 +979,7 @@ export default function GroupDetail() {
                     </div>
 
                     {/* Bump Chart - Evolución de Posiciones */}
-                    <div className="col-span-2 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                    <div className="md:col-span-2 bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                       <div className="flex items-center mb-4">
                         <TrendingUpDown className="w-6 h-6 mr-2 text-blue-500" />
                         <h4 className="text-lg font-semibold text-gray-800">
@@ -987,7 +987,7 @@ export default function GroupDetail() {
                         </h4>
                       </div>
 
-                      <div className="h-64">
+                      <div className="h-80 md:h-64">
                         {(() => {
                           // Use approved games with results from state
                           const approvedGames = approvedGamesWithResults
@@ -1153,7 +1153,7 @@ export default function GroupDetail() {
                         </h4>
                       </div>
 
-                      <div className="h-64">
+                      <div className="h-80 md:h-64">
                         {(() => {
                           const gamesWithResults = approvedGamesWithResults
                             .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
@@ -1245,7 +1245,7 @@ export default function GroupDetail() {
 
                   {/* Personal Statistics */}
                   {statsMode === 'personal' && (
-                    <div className="grid grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {/* Row 1 - Personal Coins Chart */}
                       <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                         <div className="flex items-center mb-4">
@@ -1255,7 +1255,7 @@ export default function GroupDetail() {
                           </h4>
                         </div>
 
-                        <div className="h-64">
+                        <div className="h-80 md:h-64">
                           {(() => {
                             // Get user's member ID
                             const userMember = group?.members?.find(m => m.user_id === user?.id);
@@ -1403,7 +1403,7 @@ export default function GroupDetail() {
                           </h4>
                         </div>
 
-                        <div className="h-64">
+                        <div className="h-80 md:h-64">
                           {(() => {
                             // Get user's member ID
                             const userMember = group?.members?.find(m => m.user_id === user?.id);
@@ -1551,7 +1551,7 @@ export default function GroupDetail() {
                           </h4>
                         </div>
 
-                        <div className="h-64">
+                        <div className="h-80 md:h-64">
                           {(() => {
                             // Get user's member ID
                             const userMember = group?.members?.find(m => m.user_id === user?.id);

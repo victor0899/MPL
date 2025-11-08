@@ -31,7 +31,7 @@ function LastVictoryCounter({ lastVictoryDate, mapName, mapInfo }: { lastVictory
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      setTimeElapsed(`${days}D|${hours}H|${minutes}M|${seconds}S`);
+      setTimeElapsed(`${days}|${hours}|${minutes}|${seconds}`);
     };
 
     updateTimer();
@@ -43,30 +43,37 @@ function LastVictoryCounter({ lastVictoryDate, mapName, mapInfo }: { lastVictory
   const [days, hours, minutes, seconds] = timeElapsed.split('|');
 
   return (
-    <div className="flex flex-col items-center justify-center h-full">
-      {getMapImageUrl(mapName) ? (
-        <div className="relative mb-4 w-full">
-          <img
-            src={getMapImageUrl(mapName)!}
-            alt={mapName}
-            className="w-full h-32 object-cover object-center rounded-lg shadow-md"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-10 rounded-lg"></div>
-        </div>
-      ) : (
-        <div className="w-full h-32 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-md flex items-center justify-center mb-4">
-          <span className="text-white text-lg font-semibold">{mapName}</span>
-        </div>
-      )}
+    <div className="flex flex-col items-center justify-center h-full px-4 py-2">
+      {/* Map Info Above */}
+      <div className="mb-4 text-center">
+        <p className="text-xs text-gray-500">{mapName}</p>
+      </div>
 
-      <h5 className="text-xl font-bold text-gray-800 mb-4 text-center">{mapName}</h5>
+      {/* Grid 2x2 */}
+      <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full max-w-md">
+        {/* Top Left: Días */}
+        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 shadow-sm">
+          <div className="text-5xl font-bold text-red-600">{days}</div>
+          <div className="text-sm text-gray-600 mt-2">Días</div>
+        </div>
 
-      <p className="text-sm text-gray-600 mb-3">Hace:</p>
-      <div className="flex flex-col items-center space-y-1">
-        <div className="text-4xl font-bold text-red-600">{days}</div>
-        <div className="text-4xl font-bold text-red-600">{hours}</div>
-        <div className="text-4xl font-bold text-red-600">{minutes}</div>
-        <div className="text-4xl font-bold text-red-600">{seconds}</div>
+        {/* Top Right: Horas */}
+        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 shadow-sm">
+          <div className="text-5xl font-bold text-orange-600">{hours}</div>
+          <div className="text-sm text-gray-600 mt-2">Horas</div>
+        </div>
+
+        {/* Bottom Left: Minutos */}
+        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg p-4 shadow-sm">
+          <div className="text-5xl font-bold text-yellow-600">{minutes}</div>
+          <div className="text-sm text-gray-600 mt-2">Minutos</div>
+        </div>
+
+        {/* Bottom Right: Segundos */}
+        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 shadow-sm">
+          <div className="text-5xl font-bold text-green-600">{seconds}</div>
+          <div className="text-sm text-gray-600 mt-2">Segundos</div>
+        </div>
       </div>
     </div>
   );
@@ -833,23 +840,6 @@ export default function GroupDetail() {
                   </tbody>
                 </table>
               </div>
-
-                  <div className="px-6 py-4 bg-gray-50 border-t">
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <div className="text-lg font-semibold text-green-600">
-                          {group?.games?.filter(g => g.status === 'approved').length || 0}
-                        </div>
-                        <div className="text-xs text-gray-600">Partidas Aprobadas</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-semibold text-yellow-600">
-                          {leaderboard.reduce((sum, entry) => sum + entry.total_stars, 0)}
-                        </div>
-                        <div className="text-xs text-gray-600">Estrellas Totales</div>
-                      </div>
-                    </div>
-                  </div>
                 </>
               )}
 
@@ -1769,7 +1759,7 @@ export default function GroupDetail() {
 
                       {/* Last Victory Timer */}
                       <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-                        <div className="flex items-center justify-center mb-4">
+                        <div className="flex items-center justify-center mb-3">
                           <Trophy className="w-6 h-6 mr-2 text-yellow-500" />
                           <h4 className="text-lg font-semibold text-gray-800">
                             Última Victoria

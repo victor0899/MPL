@@ -13,11 +13,10 @@ import { useAuthStore } from '../app/store/useAuthStore';
 import { formatGameDate } from '../shared/utils/dateFormat';
 import { getCharacterImage } from '../shared/utils/characters';
 import { DEFAULT_COUNTRY } from '../shared/utils/countries';
-import { getMapImageUrl, getMapInfo } from '../shared/utils/maps';
 import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
 
 // Component for live countdown timer
-function LastVictoryCounter({ lastVictoryDate, mapName, mapInfo }: { lastVictoryDate: string; mapName: string; mapInfo: any }) {
+function LastVictoryCounter({ lastVictoryDate, mapName }: { lastVictoryDate: string; mapName: string }) {
   const [timeElapsed, setTimeElapsed] = useState('');
 
   useEffect(() => {
@@ -1806,13 +1805,11 @@ export default function GroupDetail() {
                           }
 
                           const lastVictory = victories[0];
-                          const mapInfo = lastVictory.map?.name ? getMapInfo(lastVictory.map.name) : null;
 
                           return (
                             <LastVictoryCounter
                               lastVictoryDate={lastVictory.created_at}
                               mapName={lastVictory.map?.name || 'Mapa desconocido'}
-                              mapInfo={mapInfo}
                             />
                           );
                         })()}

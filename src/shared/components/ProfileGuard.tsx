@@ -14,26 +14,14 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
   const isAuthenticated = !!session && !!user;
 
   useEffect(() => {
-    console.log('ProfileGuard check:', {
-      isAuthenticated,
-      hasSession: !!session,
-      hasUser: !!user,
-      hasProfile: !!profile,
-      profileCompleted: profile?.profile_completed,
-      currentPath: location.pathname,
-      loading
-    });
-
     // Don't do anything while still loading
     if (loading) {
-      console.log('Still loading, waiting...');
       return;
     }
 
     if (isAuthenticated) {
       // If we have a user but no profile, wait for profile to load
       if (!profile) {
-        console.log('User authenticated but profile not loaded yet, waiting...');
         return;
       }
 
@@ -41,12 +29,10 @@ export default function ProfileGuard({ children }: ProfileGuardProps) {
 
       if (!profileCompleted) {
         if (location.pathname !== '/complete-profile') {
-          console.log('Profile not completed, navigating to complete-profile');
           navigate('/complete-profile');
         }
       } else {
         if (location.pathname === '/complete-profile') {
-          console.log('Profile is completed, navigating to dashboard');
           navigate('/dashboard');
         }
       }

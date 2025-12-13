@@ -94,6 +94,41 @@ export default function GroupDetail() {
   const [showCloseLeagueModal, setShowCloseLeagueModal] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Check system dark mode preference
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  // Detect dark mode changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+
+    // Listen for changes
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  // Nivo theme based on dark mode
+  const nivoTheme = {
+    textColor: isDarkMode ? '#f3f4f6' : '#333333',
+    axis: {
+      ticks: {
+        text: {
+          fill: isDarkMode ? '#f3f4f6' : '#333333',
+        },
+      },
+      legend: {
+        text: {
+          fill: isDarkMode ? '#f3f4f6' : '#333333',
+        },
+      },
+    },
+  };
 
 
 
@@ -919,6 +954,7 @@ export default function GroupDetail() {
                               keys={['victories']}
                               indexBy="player"
                               margin={{ top: 20, right: 20, bottom: 50, left: 40 }}
+                              theme={nivoTheme}
                               padding={0.4}
                               valueScale={{ type: 'linear' }}
                               colors={({ data }) => {
@@ -1051,6 +1087,7 @@ export default function GroupDetail() {
                               <ResponsiveBump
                                 data={bumpData}
                                 margin={{ top: 40, right: 120, bottom: 40, left: 60 }}
+                                theme={nivoTheme}
                                 colors={{ scheme: 'category10' }}
                                 lineWidth={3}
                                 activeLineWidth={6}
@@ -1190,6 +1227,7 @@ export default function GroupDetail() {
                               <ResponsiveLine
                                 data={lineData}
                                 margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
+                                theme={nivoTheme}
                                 xScale={{ type: 'point' }}
                                 yScale={{
                                   type: 'linear',
@@ -1334,6 +1372,7 @@ export default function GroupDetail() {
                                 <ResponsiveLine
                                   data={lineData}
                                   margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
+                                  theme={nivoTheme}
                                   xScale={{ type: 'point' }}
                                   yScale={{
                                     type: 'linear',
@@ -1484,6 +1523,7 @@ export default function GroupDetail() {
                                 <ResponsiveLine
                                   data={lineData}
                                   margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
+                                  theme={nivoTheme}
                                   xScale={{ type: 'point' }}
                                   yScale={{
                                     type: 'linear',
@@ -1646,6 +1686,7 @@ export default function GroupDetail() {
                               <ResponsivePie
                                 data={pieData}
                                 margin={{ top: 20, right: 80, bottom: 60, left: 80 }}
+                                theme={nivoTheme}
                                 innerRadius={0.5}
                                 padAngle={0.7}
                                 cornerRadius={3}
@@ -1657,7 +1698,7 @@ export default function GroupDetail() {
                                   modifiers: [['darker', 0.2]]
                                 }}
                                 arcLinkLabelsSkipAngle={10}
-                                arcLinkLabelsTextColor="#333333"
+                                arcLinkLabelsTextColor={isDarkMode ? '#f3f4f6' : '#333333'}
                                 arcLinkLabelsThickness={2}
                                 arcLinkLabelsColor={{ from: 'color' }}
                                 arcLabelsSkipAngle={10}
@@ -1676,7 +1717,7 @@ export default function GroupDetail() {
                                     itemsSpacing: 0,
                                     itemWidth: 70,
                                     itemHeight: 18,
-                                    itemTextColor: '#999',
+                                    itemTextColor: isDarkMode ? '#e5e7eb' : '#999',
                                     itemDirection: 'left-to-right',
                                     itemOpacity: 1,
                                     symbolSize: 12,

@@ -424,7 +424,7 @@ export default function GroupDetail() {
               <div className="space-y-3">
                 {humanMembers.map((member, index) => (
                   <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
+                    <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
                       {member.profile?.profile_picture ? (
                         <img
                           src={getCharacterImage(member.profile.profile_picture)}
@@ -453,7 +453,7 @@ export default function GroupDetail() {
 
                 {cpuMembers.map((member) => (
                   <div key={member.id} className="flex items-center space-x-3 p-3 bg-purple-50 dark:bg-purple-900 rounded-lg">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-purple-500 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full overflow-hidden bg-purple-500 dark:bg-purple-600 flex items-center justify-center">
                       {member.cpu_avatar ? (
                         <img
                           src={getCharacterImage(member.cpu_avatar)}

@@ -88,7 +88,7 @@ export const AuthForm = ({ isLogin, onToggleMode, onSuccess }: AuthFormProps) =>
 
       <div>
         <div className="flex items-center justify-between mb-1">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
             Contraseña
           </label>
           {isLogin && (

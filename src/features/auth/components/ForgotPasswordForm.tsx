@@ -59,7 +59,7 @@ export const ForgotPasswordForm = () => {
         <p className="text-gray-600 dark:text-gray-400">
           Hemos enviado un enlace de recuperación a <strong>{email}</strong>
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Revisa tu bandeja de entrada y haz clic en el enlace para restablecer tu contraseña.
           Si no ves el email, revisa tu carpeta de spam.
         </p>

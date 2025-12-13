@@ -447,8 +447,8 @@ export default function CreateGame() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto py-8 px-4">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-mario text-gray-800 mb-6">Información de la Partida</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h2 className="text-xl font-mario text-gray-800 dark:text-white mb-6">Información de la Partida</h2>
 
             <div className="mb-6">
               <Input
@@ -463,7 +463,7 @@ export default function CreateGame() {
 
             <div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-4">
+                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-4">
                   Mapa Jugado
                 </label>
 
@@ -562,13 +562,13 @@ export default function CreateGame() {
                         onClick={() => navigateMap('prev')}
                         className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 shadow-md ${
                           mapSelected || maps.length <= 1
-                            ? 'bg-gray-200 border-2 border-gray-300 cursor-not-allowed'
-                            : 'bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-300 hover:shadow-lg'
+                            ? 'bg-gray-200 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 cursor-not-allowed'
+                            : 'bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900 border-2 border-blue-200 dark:border-blue-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg'
                         }`}
                         disabled={mapSelected || maps.length <= 1}
                         title={mapSelected ? "Deselecciona el mapa para navegar" : "Mapa anterior (← tecla izquierda)"}
                       >
-                        <span className={`text-lg font-bold ${mapSelected ? 'text-gray-400' : 'text-blue-600'}`}>‹</span>
+                        <span className={`text-lg font-bold ${mapSelected ? 'text-gray-400 dark:text-gray-500' : 'text-blue-600 dark:text-blue-400'}`}>‹</span>
                       </button>
 
                       <div className="flex space-x-2">
@@ -580,10 +580,10 @@ export default function CreateGame() {
                             disabled={mapSelected}
                             className={`w-4 h-4 rounded-full transition-all duration-200 ${
                               mapSelected
-                                ? 'bg-gray-300 cursor-not-allowed'
+                                ? 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed'
                                 : index === selectedMapIndex
-                                ? 'bg-blue-500 shadow-md transform scale-110'
-                                : 'bg-gray-300 hover:bg-gray-400 hover:transform hover:scale-105'
+                                ? 'bg-blue-500 dark:bg-blue-400 shadow-md transform scale-110'
+                                : 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 hover:transform hover:scale-105'
                             }`}
                             title={mapSelected ? "Deselecciona el mapa para navegar" : `${maps[index]?.name}`}
                           />
@@ -595,13 +595,13 @@ export default function CreateGame() {
                         onClick={() => navigateMap('next')}
                         className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-200 shadow-md ${
                           mapSelected || maps.length <= 1
-                            ? 'bg-gray-200 border-2 border-gray-300 cursor-not-allowed'
-                            : 'bg-white hover:bg-blue-50 border-2 border-blue-200 hover:border-blue-300 hover:shadow-lg'
+                            ? 'bg-gray-200 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 cursor-not-allowed'
+                            : 'bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900 border-2 border-blue-200 dark:border-blue-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-lg'
                         }`}
                         disabled={mapSelected || maps.length <= 1}
                         title={mapSelected ? "Deselecciona el mapa para navegar" : "Siguiente mapa (→ tecla derecha)"}
                       >
-                        <span className={`text-lg font-bold ${mapSelected ? 'text-gray-400' : 'text-blue-600'}`}>›</span>
+                        <span className={`text-lg font-bold ${mapSelected ? 'text-gray-400 dark:text-gray-500' : 'text-blue-600 dark:text-blue-400'}`}>›</span>
                       </button>
                     </div>
 
@@ -629,13 +629,13 @@ export default function CreateGame() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">Resultados por Jugador</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Resultados por Jugador</h2>
             {group && group.rule_set && (() => {
               const ruleInfo = getRuleSetInfo(group.rule_set);
               return (
-                <div className="mb-6 p-3 bg-gray-50 rounded-lg space-y-2">
-                  <div className="flex flex-wrap gap-4 text-xs text-gray-700">
+                <div className="mb-6 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg space-y-2">
+                  <div className="flex flex-wrap gap-4 text-xs text-gray-700 dark:text-gray-300">
                     {ruleInfo.positions.map((pos, idx) => (
                       <span key={idx}>
                         {pos.emoji} {pos.label}: {pos.points} punto{pos.points !== 1 ? 's' : ''}
@@ -643,7 +643,7 @@ export default function CreateGame() {
                     ))}
                   </div>
                   {ruleInfo.bonuses && (
-                    <div className="text-xs text-purple-600 font-medium">
+                    <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">
                       + Bonos: {ruleInfo.bonuses.map((bonus, idx) => (
                         <span key={idx}>
                           {bonus.name} (+{bonus.points}pt {bonus.timing === 'per_game' ? 'cada partida' : 'al final'})
@@ -658,7 +658,7 @@ export default function CreateGame() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {playerResults.map((player) => (
-                <div key={player.playerId} className="border border-gray-200 rounded-lg p-4">
+                <div key={player.playerId} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 dark:bg-gray-700/50">
                   <div className="flex space-x-4">
                     <div className="flex flex-col items-center">
                       <div className="relative">
@@ -708,14 +708,14 @@ export default function CreateGame() {
                         </div>
                       </div>
 
-                      <h3 className="font-semibold text-sm mt-2 text-center">{player.playerName}</h3>
+                      <h3 className="font-semibold text-sm mt-2 text-center text-gray-900 dark:text-white">{player.playerName}</h3>
                     </div>
 
                     <div className="flex-1">
-                      <div className="grid grid-cols-2 gap-4 divide-x divide-gray-200">
+                      <div className="grid grid-cols-2 gap-4 divide-x divide-gray-200 dark:divide-gray-600">
                         {/* Columna 1: Resultados Finales */}
                         <div className="pr-4">
-                          <div className="text-xs font-semibold text-gray-600 mb-2">Finales</div>
+                          <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">Finales</div>
                           <div className="space-y-2">
                             <div className="flex items-center space-x-2">
                               <img src="/images/others/MPS_Star.webp" alt="Estrellas" className="w-5 h-5" />
@@ -726,7 +726,7 @@ export default function CreateGame() {
                                 value={player.stars === 0 ? '' : player.stars}
                                 placeholder="0"
                                 onChange={(e) => updatePlayerResult(player.playerId, 'stars', e.target.value)}
-                                className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
                             </div>
 
@@ -739,7 +739,7 @@ export default function CreateGame() {
                                 value={player.coins === 0 ? '' : player.coins}
                                 placeholder="0"
                                 onChange={(e) => updatePlayerResult(player.playerId, 'coins', e.target.value)}
-                                className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
                             </div>
 
@@ -752,7 +752,7 @@ export default function CreateGame() {
                                 value={player.minigames_won === 0 ? '' : player.minigames_won}
                                 placeholder="0"
                                 onChange={(e) => updatePlayerResult(player.playerId, 'minigames_won', e.target.value)}
-                                className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                               />
                             </div>
                           </div>
@@ -772,7 +772,7 @@ export default function CreateGame() {
                                   value={player.total_stars_earned === 0 ? '' : player.total_stars_earned}
                                   placeholder="0"
                                   onChange={(e) => updatePlayerResult(player.playerId, 'total_stars_earned', e.target.value)}
-                                  className="w-20 px-2 py-1 border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                  className="w-20 px-2 py-1 border border-purple-300 dark:border-purple-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 />
                               </div>
 
@@ -785,7 +785,7 @@ export default function CreateGame() {
                                   value={player.total_coins_earned === 0 ? '' : player.total_coins_earned}
                                   placeholder="0"
                                   onChange={(e) => updatePlayerResult(player.playerId, 'total_coins_earned', e.target.value)}
-                                  className="w-20 px-2 py-1 border border-purple-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                  className="w-20 px-2 py-1 border border-purple-300 dark:border-purple-600 rounded text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                                 />
                               </div>
                             </div>

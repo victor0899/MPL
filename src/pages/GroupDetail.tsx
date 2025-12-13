@@ -986,110 +986,112 @@ export default function GroupDetail() {
                         </h4>
                       </div>
 
-                      <div className="h-80 md:h-64">
-                        {(() => {
-                          // Use approved games with results from state
-                          const approvedGames = approvedGamesWithResults
-                            .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+                      <div className="h-80 md:h-64 overflow-x-auto">
+                        <div className="min-w-[800px] h-full">
+                          {(() => {
+                            // Use approved games with results from state
+                            const approvedGames = approvedGamesWithResults
+                              .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
 
-                          if (approvedGames.length === 0) {
-                            return (
-                              <div className="h-full flex items-center justify-center">
-                                <div className="text-center text-gray-500 dark:text-gray-400">
-                                  <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
-                                  <p className="text-sm">No hay suficientes partidas para mostrar evolución</p>
+                            if (approvedGames.length === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500 dark:text-gray-400">
+                                    <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                                    <p className="text-sm">No hay suficientes partidas para mostrar evolución</p>
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          }
+                              );
+                            }
 
-                          // Process data for bump chart
-                          const playerData: { [key: string]: { name: string; positions: number[] } } = {};
+                            // Process data for bump chart
+                            const playerData: { [key: string]: { name: string; positions: number[] } } = {};
 
-                          // Initialize all players
-                          leaderboard.forEach(entry => {
-                            playerData[entry.player_id] = {
-                              name: entry.player_name,
-                              positions: []
-                            };
-                          });
-
-                          // Fill positions for each game
-                          approvedGames.forEach(game => {
-                            const gameResults = game.results?.sort((a, b) => a.position - b.position) || [];
-                            gameResults.forEach(result => {
-                              if (playerData[result.player_id]) {
-                                playerData[result.player_id].positions.push(result.position);
-                              }
+                            // Initialize all players
+                            leaderboard.forEach(entry => {
+                              playerData[entry.player_id] = {
+                                name: entry.player_name,
+                                positions: []
+                              };
                             });
-                          });
 
-                          // Convert to Nivo Bump format
-                          const bumpData = Object.entries(playerData)
-                            .filter(([_, data]) => data.positions.length > 0)
-                            .map(([_playerId, data]) => ({
-                              id: data.name.length > 12 ? data.name.substring(0, 12) + '...' : data.name,
-                              data: data.positions.map((position, index) => ({
-                                x: index + 1,
-                                y: position
-                              }))
-                            }));
+                            // Fill positions for each game
+                            approvedGames.forEach(game => {
+                              const gameResults = game.results?.sort((a, b) => a.position - b.position) || [];
+                              gameResults.forEach(result => {
+                                if (playerData[result.player_id]) {
+                                  playerData[result.player_id].positions.push(result.position);
+                                }
+                              });
+                            });
 
-                          if (bumpData.length === 0) {
-                            return (
-                              <div className="h-full flex items-center justify-center">
-                                <div className="text-center text-gray-500 dark:text-gray-400">
-                                  <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
-                                  <p className="text-sm">No hay datos disponibles</p>
+                            // Convert to Nivo Bump format
+                            const bumpData = Object.entries(playerData)
+                              .filter(([_, data]) => data.positions.length > 0)
+                              .map(([_playerId, data]) => ({
+                                id: data.name.length > 12 ? data.name.substring(0, 12) + '...' : data.name,
+                                data: data.positions.map((position, index) => ({
+                                  x: index + 1,
+                                  y: position
+                                }))
+                              }));
+
+                            if (bumpData.length === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500 dark:text-gray-400">
+                                    <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                                    <p className="text-sm">No hay datos disponibles</p>
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          }
+                              );
+                            }
 
-                          return (
-                            <ResponsiveBump
-                              data={bumpData}
-                              margin={{ top: 40, right: 120, bottom: 40, left: 60 }}
-                              colors={{ scheme: 'category10' }}
-                              lineWidth={3}
-                              activeLineWidth={6}
-                              inactiveLineWidth={3}
-                              inactiveOpacity={0.15}
-                              pointSize={10}
-                              activePointSize={16}
-                              inactivePointSize={0}
-                              pointColor={{ theme: 'background' }}
-                              pointBorderWidth={3}
-                              activePointBorderWidth={3}
-                              pointBorderColor={{ from: 'serie.color' }}
-                              axisTop={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: '',
-                                legendPosition: 'middle',
-                                legendOffset: -36
-                              }}
-                              axisBottom={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'Partida',
-                                legendPosition: 'middle',
-                                legendOffset: 32
-                              }}
-                              axisLeft={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'Posición',
-                                legendPosition: 'middle',
-                                legendOffset: -40
-                              }}
-                              axisRight={null}
-                            />
-                          );
-                        })()}
+                            return (
+                              <ResponsiveBump
+                                data={bumpData}
+                                margin={{ top: 40, right: 120, bottom: 40, left: 60 }}
+                                colors={{ scheme: 'category10' }}
+                                lineWidth={3}
+                                activeLineWidth={6}
+                                inactiveLineWidth={3}
+                                inactiveOpacity={0.15}
+                                pointSize={10}
+                                activePointSize={16}
+                                inactivePointSize={0}
+                                pointColor={{ theme: 'background' }}
+                                pointBorderWidth={3}
+                                activePointBorderWidth={3}
+                                pointBorderColor={{ from: 'serie.color' }}
+                                axisTop={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: '',
+                                  legendPosition: 'middle',
+                                  legendOffset: -36
+                                }}
+                                axisBottom={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: 'Partida',
+                                  legendPosition: 'middle',
+                                  legendOffset: 32
+                                }}
+                                axisLeft={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: 'Posición',
+                                  legendPosition: 'middle',
+                                  legendOffset: -40
+                                }}
+                                axisRight={null}
+                              />
+                            );
+                          })()}
+                        </div>
                       </div>
                     </div>
 
@@ -1152,79 +1154,81 @@ export default function GroupDetail() {
                         </h4>
                       </div>
 
-                      <div className="h-80 md:h-64">
-                        {(() => {
-                          const gamesWithResults = approvedGamesWithResults
-                            .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+                      <div className="h-80 md:h-64 overflow-x-auto">
+                        <div className="min-w-[800px] h-full">
+                          {(() => {
+                            const gamesWithResults = approvedGamesWithResults
+                              .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
 
-                          if (gamesWithResults.length === 0) {
-                            return (
-                              <div className="h-full flex items-center justify-center">
-                                <div className="text-center text-gray-500 dark:text-gray-400">
-                                  <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
-                                  <p className="text-sm">No hay datos disponibles</p>
+                            if (gamesWithResults.length === 0) {
+                              return (
+                                <div className="h-full flex items-center justify-center">
+                                  <div className="text-center text-gray-500 dark:text-gray-400">
+                                    <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                                    <p className="text-sm">No hay datos disponibles</p>
+                                  </div>
                                 </div>
-                              </div>
+                              );
+                            }
+
+                            // Calculate total coins earned per game (sum of all 4 players)
+                            const lineData = [{
+                              id: 'Monedas Totales',
+                              data: gamesWithResults.map((game, index) => {
+                                const totalCoinsEarned = game.results?.reduce((sum, result) => {
+                                  return sum + (result.total_coins_earned || 0);
+                                }, 0) || 0;
+
+                                return {
+                                  x: `P${index + 1}`,
+                                  y: totalCoinsEarned
+                                };
+                              })
+                            }];
+
+                            return (
+                              <ResponsiveLine
+                                data={lineData}
+                                margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
+                                xScale={{ type: 'point' }}
+                                yScale={{
+                                  type: 'linear',
+                                  min: 0,
+                                  max: 'auto'
+                                }}
+                                curve="linear"
+                                axisTop={null}
+                                axisRight={null}
+                                axisBottom={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: 'Partida',
+                                  legendOffset: 36,
+                                  legendPosition: 'middle'
+                                }}
+                                axisLeft={{
+                                  tickSize: 5,
+                                  tickPadding: 5,
+                                  tickRotation: 0,
+                                  legend: 'Monedas Totales',
+                                  legendOffset: -50,
+                                  legendPosition: 'middle',
+                                  format: (value) => Math.floor(value)
+                                }}
+                                colors={{ scheme: 'category10' }}
+                                pointSize={10}
+                                pointColor={{ theme: 'background' }}
+                                pointBorderWidth={2}
+                                pointBorderColor={{ from: 'serieColor' }}
+                                useMesh={true}
+                                enableArea={true}
+                                areaOpacity={0.2}
+                                legends={[]}
+                              />
                             );
-                          }
-
-                          // Calculate total coins earned per game (sum of all 4 players)
-                          const lineData = [{
-                            id: 'Monedas Totales',
-                            data: gamesWithResults.map((game, index) => {
-                              const totalCoinsEarned = game.results?.reduce((sum, result) => {
-                                return sum + (result.total_coins_earned || 0);
-                              }, 0) || 0;
-
-                              return {
-                                x: `P${index + 1}`,
-                                y: totalCoinsEarned
-                              };
-                            })
-                          }];
-
-                          return (
-                            <ResponsiveLine
-                              data={lineData}
-                              margin={{ top: 20, right: 20, bottom: 50, left: 60 }}
-                              xScale={{ type: 'point' }}
-                              yScale={{
-                                type: 'linear',
-                                min: 0,
-                                max: 'auto'
-                              }}
-                              curve="linear"
-                              axisTop={null}
-                              axisRight={null}
-                              axisBottom={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'Partida',
-                                legendOffset: 36,
-                                legendPosition: 'middle'
-                              }}
-                              axisLeft={{
-                                tickSize: 5,
-                                tickPadding: 5,
-                                tickRotation: 0,
-                                legend: 'Monedas Totales',
-                                legendOffset: -50,
-                                legendPosition: 'middle',
-                                format: (value) => Math.floor(value)
-                              }}
-                              colors={{ scheme: 'category10' }}
-                              pointSize={10}
-                              pointColor={{ theme: 'background' }}
-                              pointBorderWidth={2}
-                              pointBorderColor={{ from: 'serieColor' }}
-                              useMesh={true}
-                              enableArea={true}
-                              areaOpacity={0.2}
-                              legends={[]}
-                            />
-                          );
-                        })()}
+                          })()}
+                        </div>
                       </div>
                     </div>
 
@@ -1254,142 +1258,144 @@ export default function GroupDetail() {
                           </h4>
                         </div>
 
-                        <div className="h-80 md:h-64">
-                          {(() => {
-                            // Get user's member ID
-                            const userMember = group?.members?.find(m => m.user_id === user?.id);
-                            if (!userMember) {
-                              return (
-                                <div className="h-full flex items-center justify-center">
-                                  <div className="text-center text-gray-500">
-                                    <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                    <p className="text-sm">No eres miembro de este grupo</p>
+                        <div className="h-80 md:h-64 overflow-x-auto">
+                          <div className="min-w-[800px] h-full">
+                            {(() => {
+                              // Get user's member ID
+                              const userMember = group?.members?.find(m => m.user_id === user?.id);
+                              if (!userMember) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No eres miembro de este grupo</p>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            }
-
-                            const gamesWithResults = approvedGamesWithResults
-                              .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
-
-                            if (gamesWithResults.length === 0) {
-                              return (
-                                <div className="h-full flex items-center justify-center">
-                                  <div className="text-center text-gray-500">
-                                    <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                    <p className="text-sm">No hay datos disponibles</p>
-                                  </div>
-                                </div>
-                              );
-                            }
-
-                            // Filter results for current user
-                            const userCoinsData = {
-                              earned: [] as Array<{ x: string; y: number }>,
-                              final: [] as Array<{ x: string; y: number }>
-                            };
-
-                            gamesWithResults.forEach((game, index) => {
-                              const userResult = game.results?.find(r => r.player_id === userMember.id);
-                              if (userResult) {
-                                userCoinsData.earned.push({
-                                  x: `P${index + 1}`,
-                                  y: userResult.total_coins_earned || 0
-                                });
-                                userCoinsData.final.push({
-                                  x: `P${index + 1}`,
-                                  y: userResult.coins || 0
-                                });
+                                );
                               }
-                            });
 
-                            if (userCoinsData.earned.length === 0) {
-                              return (
-                                <div className="h-full flex items-center justify-center">
-                                  <div className="text-center text-gray-500">
-                                    <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                    <p className="text-sm">No has participado en partidas</p>
+                              const gamesWithResults = approvedGamesWithResults
+                                .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+                              if (gamesWithResults.length === 0) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No hay datos disponibles</p>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            }
-
-                            const lineData = [
-                              {
-                                id: 'Obtenidas',
-                                data: userCoinsData.earned
-                              },
-                              {
-                                id: 'Finales',
-                                data: userCoinsData.final
+                                );
                               }
-                            ];
 
-                            return (
-                              <ResponsiveLine
-                                data={lineData}
-                                margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
-                                xScale={{ type: 'point' }}
-                                yScale={{
-                                  type: 'linear',
-                                  min: 0,
-                                  max: 'auto'
-                                }}
-                                curve="monotoneX"
-                                axisTop={null}
-                                axisRight={null}
-                                axisBottom={{
-                                  tickSize: 5,
-                                  tickPadding: 5,
-                                  tickRotation: 0,
-                                  legend: 'Partida',
-                                  legendOffset: 36,
-                                  legendPosition: 'middle'
-                                }}
-                                axisLeft={{
-                                  tickSize: 5,
-                                  tickPadding: 5,
-                                  tickRotation: 0,
-                                  legend: 'Monedas',
-                                  legendOffset: -50,
-                                  legendPosition: 'middle',
-                                  format: (value) => Math.floor(value)
-                                }}
-                                colors={['#f59e0b', '#10b981']}
-                                pointSize={8}
-                                pointColor={{ theme: 'background' }}
-                                pointBorderWidth={2}
-                                pointBorderColor={{ from: 'serieColor' }}
-                                useMesh={true}
-                                legends={[
-                                  {
-                                    anchor: 'bottom-right',
-                                    direction: 'column',
-                                    justify: false,
-                                    translateX: 100,
-                                    translateY: 0,
-                                    itemsSpacing: 0,
-                                    itemDirection: 'left-to-right',
-                                    itemWidth: 80,
-                                    itemHeight: 20,
-                                    itemOpacity: 0.75,
-                                    symbolSize: 12,
-                                    symbolShape: 'circle',
-                                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
-                                    effects: [
-                                      {
-                                        on: 'hover',
-                                        style: {
-                                          itemBackground: 'rgba(0, 0, 0, .03)',
-                                          itemOpacity: 1
+                              // Filter results for current user
+                              const userCoinsData = {
+                                earned: [] as Array<{ x: string; y: number }>,
+                                final: [] as Array<{ x: string; y: number }>
+                              };
+
+                              gamesWithResults.forEach((game, index) => {
+                                const userResult = game.results?.find(r => r.player_id === userMember.id);
+                                if (userResult) {
+                                  userCoinsData.earned.push({
+                                    x: `P${index + 1}`,
+                                    y: userResult.total_coins_earned || 0
+                                  });
+                                  userCoinsData.final.push({
+                                    x: `P${index + 1}`,
+                                    y: userResult.coins || 0
+                                  });
+                                }
+                              });
+
+                              if (userCoinsData.earned.length === 0) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Coins className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No has participado en partidas</p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              const lineData = [
+                                {
+                                  id: 'Obtenidas',
+                                  data: userCoinsData.earned
+                                },
+                                {
+                                  id: 'Finales',
+                                  data: userCoinsData.final
+                                }
+                              ];
+
+                              return (
+                                <ResponsiveLine
+                                  data={lineData}
+                                  margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
+                                  xScale={{ type: 'point' }}
+                                  yScale={{
+                                    type: 'linear',
+                                    min: 0,
+                                    max: 'auto'
+                                  }}
+                                  curve="monotoneX"
+                                  axisTop={null}
+                                  axisRight={null}
+                                  axisBottom={{
+                                    tickSize: 5,
+                                    tickPadding: 5,
+                                    tickRotation: 0,
+                                    legend: 'Partida',
+                                    legendOffset: 36,
+                                    legendPosition: 'middle'
+                                  }}
+                                  axisLeft={{
+                                    tickSize: 5,
+                                    tickPadding: 5,
+                                    tickRotation: 0,
+                                    legend: 'Monedas',
+                                    legendOffset: -50,
+                                    legendPosition: 'middle',
+                                    format: (value) => Math.floor(value)
+                                  }}
+                                  colors={['#f59e0b', '#10b981']}
+                                  pointSize={8}
+                                  pointColor={{ theme: 'background' }}
+                                  pointBorderWidth={2}
+                                  pointBorderColor={{ from: 'serieColor' }}
+                                  useMesh={true}
+                                  legends={[
+                                    {
+                                      anchor: 'bottom-right',
+                                      direction: 'column',
+                                      justify: false,
+                                      translateX: 100,
+                                      translateY: 0,
+                                      itemsSpacing: 0,
+                                      itemDirection: 'left-to-right',
+                                      itemWidth: 80,
+                                      itemHeight: 20,
+                                      itemOpacity: 0.75,
+                                      symbolSize: 12,
+                                      symbolShape: 'circle',
+                                      symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                                      effects: [
+                                        {
+                                          on: 'hover',
+                                          style: {
+                                            itemBackground: 'rgba(0, 0, 0, .03)',
+                                            itemOpacity: 1
+                                          }
                                         }
-                                      }
-                                    ]
-                                  }
-                                ]}
-                              />
-                            );
-                          })()}
+                                      ]
+                                    }
+                                  ]}
+                                />
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
 
@@ -1402,142 +1408,144 @@ export default function GroupDetail() {
                           </h4>
                         </div>
 
-                        <div className="h-80 md:h-64">
-                          {(() => {
-                            // Get user's member ID
-                            const userMember = group?.members?.find(m => m.user_id === user?.id);
-                            if (!userMember) {
-                              return (
-                                <div className="h-full flex items-center justify-center">
-                                  <div className="text-center text-gray-500">
-                                    <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                    <p className="text-sm">No eres miembro de este grupo</p>
+                        <div className="h-80 md:h-64 overflow-x-auto">
+                          <div className="min-w-[800px] h-full">
+                            {(() => {
+                              // Get user's member ID
+                              const userMember = group?.members?.find(m => m.user_id === user?.id);
+                              if (!userMember) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No eres miembro de este grupo</p>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            }
-
-                            const gamesWithResults = approvedGamesWithResults
-                              .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
-
-                            if (gamesWithResults.length === 0) {
-                              return (
-                                <div className="h-full flex items-center justify-center">
-                                  <div className="text-center text-gray-500">
-                                    <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                    <p className="text-sm">No hay datos disponibles</p>
-                                  </div>
-                                </div>
-                              );
-                            }
-
-                            // Filter results for current user
-                            const userStarsData = {
-                              earned: [] as Array<{ x: string; y: number }>,
-                              final: [] as Array<{ x: string; y: number }>
-                            };
-
-                            gamesWithResults.forEach((game, index) => {
-                              const userResult = game.results?.find(r => r.player_id === userMember.id);
-                              if (userResult) {
-                                userStarsData.earned.push({
-                                  x: `P${index + 1}`,
-                                  y: userResult.total_stars_earned || 0
-                                });
-                                userStarsData.final.push({
-                                  x: `P${index + 1}`,
-                                  y: userResult.stars || 0
-                                });
+                                );
                               }
-                            });
 
-                            if (userStarsData.earned.length === 0) {
-                              return (
-                                <div className="h-full flex items-center justify-center">
-                                  <div className="text-center text-gray-500">
-                                    <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                    <p className="text-sm">No has participado en partidas</p>
+                              const gamesWithResults = approvedGamesWithResults
+                                .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+                              if (gamesWithResults.length === 0) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No hay datos disponibles</p>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            }
-
-                            const lineData = [
-                              {
-                                id: 'Obtenidas',
-                                data: userStarsData.earned
-                              },
-                              {
-                                id: 'Finales',
-                                data: userStarsData.final
+                                );
                               }
-                            ];
 
-                            return (
-                              <ResponsiveLine
-                                data={lineData}
-                                margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
-                                xScale={{ type: 'point' }}
-                                yScale={{
-                                  type: 'linear',
-                                  min: 0,
-                                  max: 'auto'
-                                }}
-                                curve="monotoneX"
-                                axisTop={null}
-                                axisRight={null}
-                                axisBottom={{
-                                  tickSize: 5,
-                                  tickPadding: 5,
-                                  tickRotation: 0,
-                                  legend: 'Partida',
-                                  legendOffset: 36,
-                                  legendPosition: 'middle'
-                                }}
-                                axisLeft={{
-                                  tickSize: 5,
-                                  tickPadding: 5,
-                                  tickRotation: 0,
-                                  legend: 'Estrellas',
-                                  legendOffset: -50,
-                                  legendPosition: 'middle',
-                                  format: (value) => Math.floor(value)
-                                }}
-                                colors={['#fbbf24', '#ef4444']}
-                                pointSize={8}
-                                pointColor={{ theme: 'background' }}
-                                pointBorderWidth={2}
-                                pointBorderColor={{ from: 'serieColor' }}
-                                useMesh={true}
-                                legends={[
-                                  {
-                                    anchor: 'bottom-right',
-                                    direction: 'column',
-                                    justify: false,
-                                    translateX: 100,
-                                    translateY: 0,
-                                    itemsSpacing: 0,
-                                    itemDirection: 'left-to-right',
-                                    itemWidth: 80,
-                                    itemHeight: 20,
-                                    itemOpacity: 0.75,
-                                    symbolSize: 12,
-                                    symbolShape: 'circle',
-                                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
-                                    effects: [
-                                      {
-                                        on: 'hover',
-                                        style: {
-                                          itemBackground: 'rgba(0, 0, 0, .03)',
-                                          itemOpacity: 1
+                              // Filter results for current user
+                              const userStarsData = {
+                                earned: [] as Array<{ x: string; y: number }>,
+                                final: [] as Array<{ x: string; y: number }>
+                              };
+
+                              gamesWithResults.forEach((game, index) => {
+                                const userResult = game.results?.find(r => r.player_id === userMember.id);
+                                if (userResult) {
+                                  userStarsData.earned.push({
+                                    x: `P${index + 1}`,
+                                    y: userResult.total_stars_earned || 0
+                                  });
+                                  userStarsData.final.push({
+                                    x: `P${index + 1}`,
+                                    y: userResult.stars || 0
+                                  });
+                                }
+                              });
+
+                              if (userStarsData.earned.length === 0) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No has participado en partidas</p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              const lineData = [
+                                {
+                                  id: 'Obtenidas',
+                                  data: userStarsData.earned
+                                },
+                                {
+                                  id: 'Finales',
+                                  data: userStarsData.final
+                                }
+                              ];
+
+                              return (
+                                <ResponsiveLine
+                                  data={lineData}
+                                  margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
+                                  xScale={{ type: 'point' }}
+                                  yScale={{
+                                    type: 'linear',
+                                    min: 0,
+                                    max: 'auto'
+                                  }}
+                                  curve="monotoneX"
+                                  axisTop={null}
+                                  axisRight={null}
+                                  axisBottom={{
+                                    tickSize: 5,
+                                    tickPadding: 5,
+                                    tickRotation: 0,
+                                    legend: 'Partida',
+                                    legendOffset: 36,
+                                    legendPosition: 'middle'
+                                  }}
+                                  axisLeft={{
+                                    tickSize: 5,
+                                    tickPadding: 5,
+                                    tickRotation: 0,
+                                    legend: 'Estrellas',
+                                    legendOffset: -50,
+                                    legendPosition: 'middle',
+                                    format: (value) => Math.floor(value)
+                                  }}
+                                  colors={['#fbbf24', '#ef4444']}
+                                  pointSize={8}
+                                  pointColor={{ theme: 'background' }}
+                                  pointBorderWidth={2}
+                                  pointBorderColor={{ from: 'serieColor' }}
+                                  useMesh={true}
+                                  legends={[
+                                    {
+                                      anchor: 'bottom-right',
+                                      direction: 'column',
+                                      justify: false,
+                                      translateX: 100,
+                                      translateY: 0,
+                                      itemsSpacing: 0,
+                                      itemDirection: 'left-to-right',
+                                      itemWidth: 80,
+                                      itemHeight: 20,
+                                      itemOpacity: 0.75,
+                                      symbolSize: 12,
+                                      symbolShape: 'circle',
+                                      symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                                      effects: [
+                                        {
+                                          on: 'hover',
+                                          style: {
+                                            itemBackground: 'rgba(0, 0, 0, .03)',
+                                            itemOpacity: 1
+                                          }
                                         }
-                                      }
-                                    ]
-                                  }
-                                ]}
-                              />
-                            );
-                          })()}
+                                      ]
+                                    }
+                                  ]}
+                                />
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
 

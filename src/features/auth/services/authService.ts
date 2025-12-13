@@ -111,6 +111,36 @@ export class AuthService {
       callback(session?.user || null);
     });
   }
+
+  async resetPasswordForEmail(email: string): Promise<{ error?: Error }> {
+    try {
+      const baseUrl = import.meta.env.PROD
+        ? window.location.origin
+        : 'http://localhost:5173';
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${baseUrl}/reset-password`,
+      });
+
+      if (error) throw error;
+      return {};
+    } catch (error) {
+      return { error: error as Error };
+    }
+  }
+
+  async updatePassword(newPassword: string): Promise<{ error?: Error }> {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword,
+      });
+
+      if (error) throw error;
+      return {};
+    } catch (error) {
+      return { error: error as Error };
+    }
+  }
 }
 
 export const authService = new AuthService();

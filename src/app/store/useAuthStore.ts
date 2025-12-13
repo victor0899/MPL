@@ -252,6 +252,11 @@ export const useAuthStore = create<AuthState>()(
               });
               // Clear groups store when user signs out
               useGroupsStore.getState().clearGroups();
+            } else if (event === 'PASSWORD_RECOVERY') {
+              // Handle password recovery - user is authenticated but should reset password
+              console.log('Password recovery event detected');
+              get().setSession(session);
+              // Don't fetch profile or redirect, let the reset password page handle it
             } else if (event === 'SIGNED_IN' && session) {
               get().setSession(session);
               // Use setTimeout to avoid deadlock with Supabase async operations

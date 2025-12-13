@@ -16,6 +16,8 @@ import CreateGame from './pages/CreateGame';
 import Leaderboard from './pages/Leaderboard';
 import CompleteProfile from './pages/CompleteProfile';
 import EditProfile from './pages/EditProfile';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 function AuthRedirectHandler() {
   return null;
@@ -57,6 +59,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/login" element={<Navigate to="/auth" replace />} />
         <Route path="/register" element={<Navigate to="/auth" replace />} />

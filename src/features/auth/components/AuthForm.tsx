@@ -1,5 +1,6 @@
 import { type FormEvent, useState } from 'react';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 import { Button, Input } from '../../../shared/components';
 import { useAuthStore } from '../../../app/store/useAuthStore';
 import { useAuthForm } from '../hooks/useAuthForm';
@@ -86,9 +87,21 @@ export const AuthForm = ({ isLogin, onToggleMode, onSuccess }: AuthFormProps) =>
       />
 
       <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Contraseña
+          </label>
+          {isLogin && (
+            <Link
+              to="/forgot-password"
+              className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          )}
+        </div>
         <Input
           type="password"
-          label="Contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder={isLogin ? "Tu contraseña" : "Crea una contraseña segura"}

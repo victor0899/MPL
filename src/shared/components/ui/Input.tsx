@@ -37,6 +37,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               inputVariants.size[size],
               error ? inputVariants.state.error : inputVariants.state.default,
               shouldShowToggle && 'pr-10',
+              // Force native calendar to use dark mode
+              (type === 'date' || type === 'datetime-local' || type === 'time') && 'dark:[color-scheme:dark]',
               className
             )}
             ref={ref}

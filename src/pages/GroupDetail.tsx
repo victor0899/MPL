@@ -13,7 +13,7 @@ import { useAuthStore } from '../app/store/useAuthStore';
 import { formatGameDate } from '../shared/utils/dateFormat';
 import { getCharacterImage } from '../shared/utils/characters';
 import { DEFAULT_COUNTRY } from '../shared/utils/countries';
-import type { Group, Game, LeaderboardEntry, GroupMember } from '../shared/types/api';
+import type { Group, Game, LeaderboardEntry, GroupMember, LeagueBonus } from '../shared/types/api';
 
 // Component for live countdown timer
 function LastVictoryCounter({ lastVictoryDate, mapName }: { lastVictoryDate: string; mapName: string }) {
@@ -88,10 +88,11 @@ export default function GroupDetail() {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [approvedGamesWithResults, setApprovedGamesWithResults] = useState<Game[]>([]);
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'statistics'>('leaderboard');
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'statistics' | 'podium'>('leaderboard');
   const [statsMode, setStatsMode] = useState<'general' | 'personal'>('general');
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [showCloseLeagueModal, setShowCloseLeagueModal] = useState(false);
+  const [leagueBonuses, setLeagueBonuses] = useState<LeagueBonus[]>([]);
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -246,6 +247,9 @@ export default function GroupDetail() {
       // Store approved games with results for charts
       setApprovedGamesWithResults(approvedGames);
 
+      // Store bonuses for podium display
+      setLeagueBonuses(bonuses);
+
       const leaderboardData = calculateLeaderboard(groupData.members, approvedGames);
 
       // Add bonuses to leaderboard if league is finalized
@@ -270,6 +274,11 @@ export default function GroupDetail() {
       }
 
       setLeaderboard(leaderboardData);
+
+      // Set default tab to podium if league is finalized
+      if (groupData.league_status === 'finalized') {
+        setActiveTab('podium');
+      }
     } catch (error: any) {
       console.error('Error al cargar grupo:', error);
       toast.error('Error al cargar el grupo');
@@ -444,6 +453,20 @@ export default function GroupDetail() {
                   month: 'long',
                   day: 'numeric'
                 })}
+                {group.league_status === 'finalized' && approvedGamesWithResults.length > 0 && (() => {
+                  const lastGame = approvedGamesWithResults.reduce((latest, game) => {
+                    return new Date(game.played_at) > new Date(latest.played_at) ? game : latest;
+                  });
+                  return (
+                    <span className="ml-2">
+                      • Finalización: {new Date(lastGame.played_at).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  );
+                })()}
               </p>
             </div>
           </div>
@@ -727,6 +750,21 @@ export default function GroupDetail() {
               {/* Tab Navigation */}
               <div className="border-b border-gray-200 dark:border-gray-700">
                 <nav className="flex space-x-8 px-6" aria-label="Tabs">
+                  {group?.league_status === 'finalized' && (
+                    <button
+                      onClick={() => setActiveTab('podium')}
+                      className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                        activeTab === 'podium'
+                          ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                          : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <Trophy className="w-4 h-4" />
+                        <span>Podio</span>
+                      </div>
+                    </button>
+                  )}
                   <button
                     onClick={() => setActiveTab('leaderboard')}
                     className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -1879,6 +1917,273 @@ export default function GroupDetail() {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Podium Tab */}
+              {activeTab === 'podium' && (
+                <div className="p-6">
+                  <div className="max-w-6xl mx-auto">
+                    {/* Title */}
+                    <div className="text-center mb-8">
+                      <h2 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600">
+                        ¡Liga Finalizada!
+                      </h2>
+                    </div>
+
+                    {/* Podium */}
+                    {leaderboard.length > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 max-w-7xl mx-auto">
+                        {/* Map first 4 places */}
+                        {leaderboard.slice(0, 4).map((player, index) => {
+                          const position = index + 1;
+                          const member = group?.members.find(m => m.id === player.player_id);
+                          const nationality = member?.profile?.nationality || member?.user?.nationality;
+
+                          const colors = {
+                            1: {
+                              bg: 'from-yellow-300 via-yellow-400 to-yellow-500',
+                              border: 'border-yellow-600',
+                              footer: 'bg-yellow-400',
+                              text: 'text-yellow-900',
+                              numberText: 'text-yellow-800'
+                            },
+                            2: {
+                              bg: 'from-gray-300 via-gray-400 to-gray-500',
+                              border: 'border-gray-600',
+                              footer: 'bg-gray-400',
+                              text: 'text-gray-800',
+                              numberText: 'text-gray-700'
+                            },
+                            3: {
+                              bg: 'from-orange-300 via-orange-400 to-orange-500',
+                              border: 'border-orange-600',
+                              footer: 'bg-orange-400',
+                              text: 'text-orange-900',
+                              numberText: 'text-orange-700'
+                            },
+                            4: {
+                              bg: 'from-blue-300 via-blue-400 to-blue-500',
+                              border: 'border-blue-600',
+                              footer: 'bg-blue-400',
+                              text: 'text-blue-900',
+                              numberText: 'text-blue-700'
+                            }
+                          }[position];
+
+                          return (
+                            <div key={player.player_id} className="w-full">
+                              <div className="flex flex-col rounded-lg overflow-hidden shadow-lg h-full">
+                                <div className={`bg-gradient-to-br ${colors!.bg} p-6 text-center flex-grow`}>
+                                  <div className="mb-4">
+                                    <div className={`w-24 h-24 mx-auto rounded-full overflow-hidden border-4 ${colors!.border} shadow-lg bg-blue-500`}>
+                                      {player.profile_picture ? (
+                                        <img
+                                          src={getCharacterImage(player.profile_picture)}
+                                          alt={player.player_name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+                                          {player.player_name.charAt(0).toUpperCase()}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center justify-center space-x-2 mb-2">
+                                    <p className={`font-semibold ${colors!.text}`}>
+                                      {player.player_name}
+                                    </p>
+                                    {player.is_cpu ? (
+                                      <img src="/images/flags/UN.svg" alt="CPU" className="w-5 h-4 rounded-sm" />
+                                    ) : nationality ? (
+                                      <CountryFlag countryCode={nationality} size="sm" />
+                                    ) : null}
+                                  </div>
+                                  <p className={`text-2xl font-bold ${colors!.text} mb-2`}>
+                                    {player.total_league_points} pts
+                                  </p>
+                                  <div className={`text-sm ${colors!.text} space-y-1`}>
+                                    <div className="flex items-center justify-center space-x-1">
+                                      <img src="/images/others/Nintendo_Switch_Pro_Controller.svg" alt="Control" className="w-4 h-4" />
+                                      <span>{player.games_won} victorias</span>
+                                    </div>
+                                    <div className="flex items-center justify-center space-x-1">
+                                      <img src="/images/others/MPS_Star.webp" alt="Estrella" className="w-4 h-4" />
+                                      <span>{player.total_stars} estrellas</span>
+                                    </div>
+                                    <div className="flex items-center justify-center space-x-1">
+                                      <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Moneda" className="w-4 h-4" />
+                                      <span>{player.total_coins} monedas</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className={`${colors!.footer} h-24 flex items-center justify-center`}>
+                                  <span className={`text-4xl font-bold ${colors!.numberText}`}>{position}°</span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Bonus Section - Only for pro_bonus groups */}
+                    {group?.rule_set === 'pro_bonus' && leagueBonuses.length > 0 && (
+                      <div className="mt-12">
+                        <h3 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-6">
+                          Bonos Especiales
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                          {/* Group bonuses by type */}
+                          {['king_of_victories', 'king_of_stars', 'king_of_coins'].map((bonusType) => {
+                            const bonus = leagueBonuses.find(b => b.bonus_type === bonusType);
+                            if (!bonus) return null;
+
+                            const player = leaderboard.find(p => p.player_id === bonus.player_id);
+                            if (!player) return null;
+
+                            const member = group?.members.find(m => m.id === bonus.player_id);
+                            const nationality = member?.profile?.nationality || member?.user?.nationality;
+
+                            const bonusInfo = {
+                              king_of_victories: {
+                                name: 'Rey de Victorias',
+                                icon: '👑',
+                                color: 'from-purple-400 to-purple-600',
+                                bgColor: 'bg-purple-50 dark:bg-purple-900/20',
+                                borderColor: 'border-purple-500',
+                                value: player.games_won,
+                                label: 'victorias'
+                              },
+                              king_of_stars: {
+                                name: 'Rey de Estrellas',
+                                icon: '⭐',
+                                color: 'from-yellow-400 to-yellow-600',
+                                bgColor: 'bg-yellow-50 dark:bg-yellow-900/20',
+                                borderColor: 'border-yellow-500',
+                                value: player.total_stars,
+                                label: 'estrellas'
+                              },
+                              king_of_coins: {
+                                name: 'Rey de Monedas',
+                                icon: '🪙',
+                                color: 'from-orange-400 to-orange-600',
+                                bgColor: 'bg-orange-50 dark:bg-orange-900/20',
+                                borderColor: 'border-orange-500',
+                                value: player.total_coins,
+                                label: 'monedas'
+                              }
+                            }[bonusType];
+
+                            return (
+                              <div
+                                key={bonusType}
+                                className={`${bonusInfo!.bgColor} border-2 ${bonusInfo!.borderColor} rounded-lg p-6 text-center transform hover:scale-105 transition-transform`}
+                              >
+                                <h4 className={`text-lg font-bold bg-gradient-to-r ${bonusInfo!.color} text-transparent bg-clip-text mb-2`}>
+                                  {bonusInfo!.name}
+                                </h4>
+                                <div className="mb-3">
+                                  <div className={`w-16 h-16 mx-auto rounded-full overflow-hidden border-2 ${bonusInfo!.borderColor} bg-blue-500`}>
+                                    {player.profile_picture ? (
+                                      <img
+                                        src={getCharacterImage(player.profile_picture)}
+                                        alt={player.player_name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
+                                        {player.player_name.charAt(0).toUpperCase()}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-center space-x-2 mb-1">
+                                  <p className="font-semibold text-gray-800 dark:text-gray-100">
+                                    {player.player_name}
+                                  </p>
+                                  {player.is_cpu ? (
+                                    <img src="/images/flags/UN.svg" alt="CPU" className="w-5 h-4 rounded-sm" />
+                                  ) : nationality ? (
+                                    <CountryFlag countryCode={nationality} size="sm" />
+                                  ) : null}
+                                </div>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                  {bonusInfo!.value} {bonusInfo!.label}
+                                </p>
+                                <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                                  +{bonus.bonus_points} pts
+                                </p>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Complete Leaderboard */}
+                    {leaderboard.length > 4 && (
+                      <div className="mt-12">
+                        <h3 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-6">
+                          Clasificación Completa
+                        </h3>
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto">
+                          <table className="w-full">
+                            <thead className="bg-gray-50 dark:bg-gray-700">
+                              <tr>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Pos
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Jugador
+                                </th>
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Puntos
+                                </th>
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Victorias
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                              {leaderboard.slice(4).map((player, index) => (
+                                <tr key={player.player_id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                  <td className="px-4 py-3 text-center text-gray-800 dark:text-gray-100 font-semibold">
+                                    {index + 5}
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <div className="flex items-center space-x-2">
+                                      <div className={`w-8 h-8 rounded-full overflow-hidden ${player.is_cpu ? 'bg-purple-500' : 'bg-blue-500'}`}>
+                                        {player.profile_picture ? (
+                                          <img
+                                            src={getCharacterImage(player.profile_picture)}
+                                            alt={player.player_name}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        ) : (
+                                          <div className="w-full h-full flex items-center justify-center text-white text-sm font-bold">
+                                            {player.player_name.charAt(0).toUpperCase()}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <span className="text-gray-800 dark:text-gray-100">{player.player_name}</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 text-center text-gray-800 dark:text-gray-100 font-bold">
+                                    {player.total_league_points}
+                                  </td>
+                                  <td className="px-4 py-3 text-center text-gray-800 dark:text-gray-100">
+                                    {player.games_won}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

@@ -89,6 +89,7 @@ export default function GroupDetail() {
   const [approvedGamesWithResults, setApprovedGamesWithResults] = useState<Game[]>([]);
   const [activeTab, setActiveTab] = useState<'leaderboard' | 'statistics' | 'podium'>('leaderboard');
   const [statsMode, setStatsMode] = useState<'general' | 'personal'>('general');
+  const [positionsMode, setPositionsMode] = useState<'game' | 'leaderboard'>('game');
   const [isFinalizing, setIsFinalizing] = useState(false);
   const [showCloseLeagueModal, setShowCloseLeagueModal] = useState(false);
   const [leagueBonuses, setLeagueBonuses] = useState<LeagueBonus[]>([]);
@@ -1058,13 +1059,39 @@ export default function GroupDetail() {
 
                     </div>
 
-                    {/* Bump Chart - Evolución de Posiciones */}
+                    {/* Bump Chart - Posiciones */}
                     <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
-                      <div className="flex items-center mb-4">
-                        <TrendingUpDown className="w-6 h-6 mr-2 text-blue-500 dark:text-blue-400" />
-                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                          Evolución de Posiciones
-                        </h4>
+                      <div className="flex items-center justify-between mb-4">
+                        <button
+                          onClick={() => setPositionsMode('game')}
+                          disabled={positionsMode === 'game'}
+                          className={`p-2 rounded-full transition-colors ${
+                            positionsMode === 'game'
+                              ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                          }`}
+                        >
+                          <ChevronLeft className="w-6 h-6" />
+                        </button>
+
+                        <div className="flex items-center gap-3">
+                          <TrendingUpDown className="w-6 h-6 text-blue-500 dark:text-blue-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            {positionsMode === 'game' ? 'Posiciones por Partida' : 'Evolución en Leaderboard'}
+                          </h4>
+                        </div>
+
+                        <button
+                          onClick={() => setPositionsMode('leaderboard')}
+                          disabled={positionsMode === 'leaderboard'}
+                          className={`p-2 rounded-full transition-colors ${
+                            positionsMode === 'leaderboard'
+                              ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                              : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                          }`}
+                        >
+                          <ChevronRight className="w-6 h-6" />
+                        </button>
                       </div>
 
                       <div className="h-80 md:h-64 overflow-x-auto">
@@ -1085,8 +1112,10 @@ export default function GroupDetail() {
                               );
                             }
 
-                            // Process data for bump chart
-                            const playerData: { [key: string]: { name: string; positions: number[] } } = {};
+                            // Mode: Posiciones por Partida (posición final en cada partida)
+                            if (positionsMode === 'game') {
+                              // Process data for bump chart
+                              const playerData: { [key: string]: { name: string; positions: number[] } } = {};
 
                             // Initialize all players
                             leaderboard.forEach(entry => {
@@ -1165,6 +1194,110 @@ export default function GroupDetail() {
                                 axisRight={null}
                               />
                             );
+                            }
+
+                            // Mode: Evolución en Leaderboard (posición en la tabla después de cada partida)
+                            else {
+                              // Calculate leaderboard evolution after each game
+                              const playerData: { [key: string]: { name: string; positions: number[] } } = {};
+
+                              // Initialize all players
+                              leaderboard.forEach(entry => {
+                                playerData[entry.player_id] = {
+                                  name: entry.player_name,
+                                  positions: []
+                                };
+                              });
+
+                              // Calculate cumulative leaderboard after each game
+                              const cumulativePoints: { [key: string]: number } = {};
+
+                              // Initialize cumulative points
+                              Object.keys(playerData).forEach(playerId => {
+                                cumulativePoints[playerId] = 0;
+                              });
+
+                              approvedGames.forEach((game) => {
+                                // Add points from this game
+                                game.results?.forEach(result => {
+                                  if (cumulativePoints[result.player_id] !== undefined) {
+                                    cumulativePoints[result.player_id] += result.league_points || 0;
+                                  }
+                                });
+
+                                // Calculate rankings based on cumulative points
+                                const rankings = Object.entries(cumulativePoints)
+                                  .map(([playerId, points]) => ({ playerId, points }))
+                                  .sort((a, b) => b.points - a.points);
+
+                                // Assign positions
+                                rankings.forEach((entry, index) => {
+                                  if (playerData[entry.playerId]) {
+                                    playerData[entry.playerId].positions.push(index + 1);
+                                  }
+                                });
+                              });
+
+                              // Convert to Nivo Bump format
+                              const bumpData = Object.entries(playerData)
+                                .filter(([_, data]) => data.positions.length > 0)
+                                .map(([_playerId, data]) => ({
+                                  id: data.name.length > 12 ? data.name.substring(0, 12) + '...' : data.name,
+                                  data: data.positions.map((position, index) => ({
+                                    x: index + 1,
+                                    y: position
+                                  }))
+                                }));
+
+                              if (bumpData.length === 0) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500 dark:text-gray-400">
+                                      <TrendingUpDown className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                                      <p className="text-sm">No hay datos disponibles</p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <ResponsiveBump
+                                  data={bumpData}
+                                  margin={{ top: 40, right: 120, bottom: 40, left: 60 }}
+                                  theme={nivoTheme}
+                                  colors={{ scheme: 'category10' }}
+                                  lineWidth={3}
+                                  activeLineWidth={6}
+                                  inactiveLineWidth={3}
+                                  inactiveOpacity={0.15}
+                                  pointSize={10}
+                                  activePointSize={16}
+                                  inactivePointSize={0}
+                                  pointColor={{ theme: 'background' }}
+                                  pointBorderWidth={3}
+                                  activePointBorderWidth={3}
+                                  pointBorderColor={{ from: 'serie.color' }}
+                                  axisTop={null}
+                                  axisBottom={{
+                                    tickSize: 5,
+                                    tickPadding: 5,
+                                    tickRotation: 0,
+                                    legend: 'Partida',
+                                    legendPosition: 'middle',
+                                    legendOffset: 32
+                                  }}
+                                  axisLeft={{
+                                    tickSize: 5,
+                                    tickPadding: 5,
+                                    tickRotation: 0,
+                                    legend: 'Posición',
+                                    legendPosition: 'middle',
+                                    legendOffset: -40
+                                  }}
+                                  axisRight={null}
+                                />
+                              );
+                            }
                           })()}
                         </div>
                       </div>

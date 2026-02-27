@@ -116,6 +116,18 @@ export default function GroupDetail() {
   // Nivo theme based on dark mode
   const nivoTheme = {
     textColor: isDarkMode ? '#f3f4f6' : '#333333',
+    tooltip: {
+      container: {
+        background: isDarkMode ? '#1f2937' : '#ffffff',
+        color: isDarkMode ? '#f3f4f6' : '#333333',
+        fontSize: '14px',
+        borderRadius: '6px',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+        border: `1px solid ${isDarkMode ? '#4b5563' : '#e5e7eb'}`,
+        zIndex: 9999,
+        transform: 'translateY(20px)',
+      },
+    },
     axis: {
       ticks: {
         text: {
@@ -1133,14 +1145,7 @@ export default function GroupDetail() {
                                 pointBorderWidth={3}
                                 activePointBorderWidth={3}
                                 pointBorderColor={{ from: 'serie.color' }}
-                                axisTop={{
-                                  tickSize: 5,
-                                  tickPadding: 5,
-                                  tickRotation: 0,
-                                  legend: '',
-                                  legendPosition: 'middle',
-                                  legendOffset: -36
-                                }}
+                                axisTop={null}
                                 axisBottom={{
                                   tickSize: 5,
                                   tickPadding: 5,
@@ -1166,7 +1171,7 @@ export default function GroupDetail() {
                     </div>
 
                     {/* Total Coins Earned per Game */}
-                    <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
+                    <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600 overflow-visible">
                       <div className="flex items-center mb-4">
                         <Coins className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
                         <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
@@ -1174,7 +1179,7 @@ export default function GroupDetail() {
                         </h4>
                       </div>
 
-                      <div className="h-80 md:h-64 overflow-x-auto">
+                      <div className="h-80 md:h-64 overflow-x-auto overflow-y-visible">
                         <div className="min-w-[800px] h-full">
                           {(() => {
                             const gamesWithResults = approvedGamesWithResults

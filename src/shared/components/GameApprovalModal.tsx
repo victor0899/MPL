@@ -68,7 +68,7 @@ export default function GameApprovalModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
-        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-6 rounded-t-lg">
+        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-600 p-6 rounded-t-lg">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -107,7 +107,7 @@ export default function GameApprovalModal({
                 )}
 
                 <div className="mt-4 text-center">
-                  <h3 className="text-2xl font-mario text-gray-800 mb-2">{game.map?.name}</h3>
+                  <h3 className="text-2xl font-mario text-gray-800 dark:text-gray-100 mb-2">{game.map?.name}</h3>
 
                   {mapInfo && (
                     <>
@@ -116,13 +116,13 @@ export default function GameApprovalModal({
                           {renderDifficultyStars(mapInfo.difficulty)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 italic px-2 mb-3">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 italic px-2 mb-3">
                         {mapInfo.description}
                       </p>
                     </>
                   )}
 
-                  <p className="text-sm text-gray-500 font-medium">{formatGameDate(game.played_at)}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{formatGameDate(game.played_at)}</p>
                 </div>
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function GameApprovalModal({
             {/* Right Column - Results Table (65%) */}
             <div className="lg:w-[65%] flex flex-col min-h-0">
               <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                <h3 className="text-xl font-mario text-gray-800">Resultados de la Partida</h3>
+                <h3 className="text-xl font-mario text-gray-800 dark:text-gray-100">Resultados de la Partida</h3>
                 {game.status !== 'pending' && (
                   <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${
                     game.status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
@@ -152,7 +152,7 @@ export default function GameApprovalModal({
 
               <div className="space-y-4 overflow-y-auto pr-2 flex-1">
                 {sortedResults.map((result) => (
-                  <div key={result.player_id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  <div key={result.player_id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
                     <div className="flex items-center space-x-4">
                       {/* Avatar and Position */}
                       <div className="flex-shrink-0 w-12">
@@ -228,71 +228,71 @@ export default function GameApprovalModal({
 
                       {/* Stats */}
                       <div className="flex-1">
-                        <div className={`grid ${isProBonus ? 'grid-cols-2 divide-x' : 'grid-cols-1'} divide-gray-200`}>
+                        <div className={`grid ${isProBonus ? 'grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x' : 'grid-cols-1'} divide-gray-200 dark:divide-gray-600`}>
                           {/* Columna 1: Resultados Finales */}
-                          <div className={isProBonus ? 'pr-4' : ''}>
+                          <div className={isProBonus ? 'pb-4 md:pb-0 md:pr-4' : ''}>
                             <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-2">Finales</div>
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
                                   <img src="/images/others/MPS_Star.webp" alt="Estrellas" className="w-4 h-4" />
-                                  <span className="text-xs text-gray-500">Estrellas</span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">Estrellas</span>
                                 </div>
-                                <span className="font-bold text-sm">{result.stars}</span>
+                                <span className="font-bold text-sm dark:text-gray-100">{result.stars}</span>
                               </div>
 
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
                                   <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Monedas" className="w-4 h-4" />
-                                  <span className="text-xs text-gray-500">Monedas</span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">Monedas</span>
                                 </div>
-                                <span className="font-bold text-sm">{result.coins}</span>
+                                <span className="font-bold text-sm dark:text-gray-100">{result.coins}</span>
                               </div>
 
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
                                   <span className="text-base">🎮</span>
-                                  <span className="text-xs text-gray-500">Minijuegos</span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">Minijuegos</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   {isProBonus && hasMinigameKing && result.minigames_won === maxMinigames && (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-300">
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-300 dark:bg-yellow-900 dark:text-yellow-200 dark:border-yellow-700">
                                       +1 pt
                                     </span>
                                   )}
-                                  <span className="font-bold text-sm">{result.minigames_won}</span>
+                                  <span className="font-bold text-sm dark:text-gray-100">{result.minigames_won}</span>
                                 </div>
                               </div>
 
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-2">
                                   <span className="text-base">🏆</span>
-                                  <span className="text-xs text-gray-500">Puntos</span>
+                                  <span className="text-xs text-gray-500 dark:text-gray-400">Puntos</span>
                                 </div>
-                                <span className="font-bold text-sm text-blue-600">{result.league_points}</span>
+                                <span className="font-bold text-sm text-blue-600 dark:text-blue-400">{result.league_points}</span>
                               </div>
                             </div>
                           </div>
 
                           {/* Columna 2: Estadísticas Ganadas (solo ProBonus) */}
                           {isProBonus && (
-                            <div className="pl-4">
-                              <div className="text-xs font-semibold text-purple-600 mb-2">Obtenidas</div>
+                            <div className="pt-4 md:pt-0 md:pl-4">
+                              <div className="text-xs font-semibold text-purple-600 dark:text-purple-400 mb-2">Obtenidas</div>
                               <div className="space-y-2">
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center space-x-2">
                                     <img src="/images/others/MPS_Star.webp" alt="Estrellas" className="w-4 h-4" />
-                                    <span className="text-xs text-gray-500">Estrellas</span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">Estrellas</span>
                                   </div>
-                                  <span className="font-bold text-sm text-purple-600">{result.total_stars_earned || 0}</span>
+                                  <span className="font-bold text-sm text-purple-600 dark:text-purple-400">{result.total_stars_earned || 0}</span>
                                 </div>
 
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center space-x-2">
                                     <img src="/images/others/NSMBDS_Coin_Artwork.webp" alt="Monedas" className="w-4 h-4" />
-                                    <span className="text-xs text-gray-500">Monedas</span>
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">Monedas</span>
                                   </div>
-                                  <span className="font-bold text-sm text-purple-600">{result.total_coins_earned || 0}</span>
+                                  <span className="font-bold text-sm text-purple-600 dark:text-purple-400">{result.total_coins_earned || 0}</span>
                                 </div>
                               </div>
                             </div>
@@ -307,7 +307,7 @@ export default function GameApprovalModal({
           </div>
         </div>
 
-        <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-6 rounded-b-lg">
+        <div className="flex-shrink-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-600 p-6 rounded-b-lg">
           {game.status === 'pending' ? (
             <>
               <div className="flex justify-end space-x-4">
@@ -355,7 +355,7 @@ export default function GameApprovalModal({
                 </Button>
               </div>
 
-              <div className="mt-3 text-center text-sm text-gray-500">
+              <div className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
                 Se necesitan 2 votos para aprobar o rechazar una partida
               </div>
             </>

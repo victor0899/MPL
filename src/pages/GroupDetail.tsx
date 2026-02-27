@@ -1164,58 +1164,8 @@ export default function GroupDetail() {
                       </div>
                     </div>
 
-                    {/* Row 2 - Average Minigames for Bonus */}
-                    <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
-                      <div className="flex items-center justify-center mb-3">
-                        <Target className="w-6 h-6 mr-2 text-green-500 dark:text-green-400" />
-                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                          Bono de Minijuegos
-                        </h4>
-                      </div>
-                      {(() => {
-                        const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
-
-                        if (gamesWithResults.length === 0) {
-                          return (
-                            <div className="text-center">
-                              <div className="text-3xl text-gray-400 dark:text-gray-500 mb-2">--</div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">Sin datos</p>
-                            </div>
-                          );
-                        }
-
-                        // Calculate max minigames won in each game
-                        const maxMinigamesPerGame = gamesWithResults.map(game => {
-                          const maxMinigames = Math.max(...(game.results?.map(r => r.minigames_won) || [0]));
-                          return maxMinigames;
-                        }).filter(max => max > 0);
-
-                        if (maxMinigamesPerGame.length === 0) {
-                          return (
-                            <div className="text-center">
-                              <div className="text-3xl text-gray-400 dark:text-gray-500 mb-2">--</div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">Sin datos</p>
-                            </div>
-                          );
-                        }
-
-                        const average = maxMinigamesPerGame.reduce((sum, val) => sum + val, 0) / maxMinigamesPerGame.length;
-
-                        return (
-                          <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                            <div className="text-8xl font-bold text-green-600 dark:text-green-400 mb-6">
-                              {average.toFixed(1)}
-                            </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">
-                              Promedio de minijuegos necesarios para ganar el bono
-                            </p>
-                          </div>
-                        );
-                      })()}
-                    </div>
-
                     {/* Total Coins Earned per Game */}
-                    <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
+                    <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                       <div className="flex items-center mb-4">
                         <Coins className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
                         <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
@@ -1302,16 +1252,54 @@ export default function GroupDetail() {
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center border-2 border-dashed border-gray-300 dark:border-gray-600">
-                      <div className="mb-3">
-                        <span className="text-3xl">🏅</span>
+                    {/* Row 2 - Average Minigames for Bonus */}
+                    <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-center mb-3">
+                        <Target className="w-6 h-6 mr-2 text-green-500 dark:text-green-400" />
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                          Bono de Minijuegos
+                        </h4>
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
-                        Estadística 6
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        Placeholder para estadística
-                      </p>
+                      {(() => {
+                        const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                        if (gamesWithResults.length === 0) {
+                          return (
+                            <div className="text-center">
+                              <div className="text-3xl text-gray-400 dark:text-gray-500 mb-2">--</div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Sin datos</p>
+                            </div>
+                          );
+                        }
+
+                        // Calculate max minigames won in each game
+                        const maxMinigamesPerGame = gamesWithResults.map(game => {
+                          const maxMinigames = Math.max(...(game.results?.map(r => r.minigames_won) || [0]));
+                          return maxMinigames;
+                        }).filter(max => max > 0);
+
+                        if (maxMinigamesPerGame.length === 0) {
+                          return (
+                            <div className="text-center">
+                              <div className="text-3xl text-gray-400 dark:text-gray-500 mb-2">--</div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Sin datos</p>
+                            </div>
+                          );
+                        }
+
+                        const average = maxMinigamesPerGame.reduce((sum, val) => sum + val, 0) / maxMinigamesPerGame.length;
+
+                        return (
+                          <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                            <div className="text-8xl font-bold text-green-600 dark:text-green-400 mb-6">
+                              {average.toFixed(1)}
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">
+                              Promedio de minijuegos necesarios para ganar el bono
+                            </p>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                   )}

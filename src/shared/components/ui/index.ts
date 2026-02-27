@@ -7,3 +7,4 @@ export { WarioLoader } from './WarioLoader';
 export { CountryFlag } from './CountryFlag';
 export { default as MemberAvatars } from './MemberAvatars';
 export { default as LucideIcon } from './LucideIcon';
+export { default as PlayerAvatar } from './PlayerAvatar';

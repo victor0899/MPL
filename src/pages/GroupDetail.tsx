@@ -7,11 +7,10 @@ import { ResponsiveLine } from '@nivo/line';
 import { ResponsivePie } from '@nivo/pie';
 import toast from 'react-hot-toast';
 import { Button, GameApprovalModal, AddCPUModal, ConfirmModal } from '../shared/components';
-import { WarioLoader, CountryFlag } from '../shared/components/ui';
+import { WarioLoader, CountryFlag, PlayerAvatar } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { formatGameDate } from '../shared/utils/dateFormat';
-import { getCharacterImage } from '../shared/utils/characters';
 import { DEFAULT_COUNTRY } from '../shared/utils/countries';
 import type { Group, Game, LeaderboardEntry, GroupMember, LeagueBonus } from '../shared/types/api';
 
@@ -481,18 +480,14 @@ export default function GroupDetail() {
 
               <div className="space-y-3">
                 {humanMembers.map((member, index) => (
-                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold overflow-hidden">
-                      {member.profile?.profile_picture ? (
-                        <img
-                          src={getCharacterImage(member.profile.profile_picture)}
-                          alt={member.profile.nickname || 'Usuario'}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        index + 1
-                      )}
-                    </div>
+                  <div key={member.id} className="flex items-center space-x-3 lg:space-x-4 p-3 lg:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <PlayerAvatar
+                      profilePicture={member.profile?.profile_picture}
+                      playerName={member.profile?.nickname || 'Usuario sin nombre'}
+                      isCPU={false}
+                      size="md"
+                      fallbackContent={<span className="text-lg text-white font-semibold">{index + 1}</span>}
+                    />
                     <div className="flex-1 text-left">
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-gray-800 dark:text-gray-100">
@@ -510,18 +505,14 @@ export default function GroupDetail() {
                 ))}
 
                 {cpuMembers.map((member) => (
-                  <div key={member.id} className="flex items-center space-x-3 p-3 bg-purple-50 dark:bg-purple-900 rounded-lg">
-                    <div className="w-10 h-10 rounded-full overflow-hidden bg-purple-500 dark:bg-purple-600 flex items-center justify-center">
-                      {member.cpu_avatar ? (
-                        <img
-                          src={getCharacterImage(member.cpu_avatar)}
-                          alt={member.cpu_name || 'CPU'}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-white">🤖</span>
-                      )}
-                    </div>
+                  <div key={member.id} className="flex items-center space-x-3 lg:space-x-4 p-3 lg:p-4 bg-purple-50 dark:bg-purple-900 rounded-lg">
+                    <PlayerAvatar
+                      profilePicture={member.cpu_avatar}
+                      playerName={member.cpu_name || 'CPU'}
+                      isCPU={true}
+                      size="md"
+                      fallbackContent={<span className="text-white text-2xl">🤖</span>}
+                    />
                     <div className="flex-1 text-left">
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-gray-800 dark:text-gray-100">{member.cpu_name}</span>
@@ -538,10 +529,15 @@ export default function GroupDetail() {
                 ))}
 
                 {Array.from({ length: group.max_members - (group.members?.length || 0) }).map((_, index) => (
-                  <div key={`empty-${index}`} className="flex items-center space-x-3 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-                    <div className="w-10 h-10 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                      ?
-                    </div>
+                  <div key={`empty-${index}`} className="flex items-center space-x-3 lg:space-x-4 p-3 lg:p-4 bg-gray-100 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                    <PlayerAvatar
+                      profilePicture={undefined}
+                      playerName="?"
+                      size="md"
+                      bgColor="bg-gray-300 dark:bg-gray-600"
+                      className="text-gray-500 dark:text-gray-400"
+                      fallbackContent={<span className="text-xl">?</span>}
+                    />
                     <div className="flex-1 text-left">
                       <div className="text-gray-500 dark:text-gray-400">Slot disponible</div>
                     </div>
@@ -851,22 +847,20 @@ export default function GroupDetail() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0 h-8 w-8">
-                              <div className={`h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold text-xs overflow-hidden ${
-                                entry.is_cpu ? 'bg-purple-500' : 'bg-blue-500'
-                              }`}>
-                                {entry.profile_picture ? (
-                                  <img
-                                    src={getCharacterImage(entry.profile_picture)}
-                                    alt={entry.player_name}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : entry.is_cpu ? (
-                                  <span className="text-white">🤖</span>
-                                ) : (
-                                  index + 1
-                                )}
-                              </div>
+                            <div className="flex-shrink-0">
+                              <PlayerAvatar
+                                profilePicture={entry.profile_picture}
+                                playerName={entry.player_name}
+                                isCPU={entry.is_cpu}
+                                size="xs"
+                                fallbackContent={
+                                  entry.is_cpu ? (
+                                    <span className="text-white">🤖</span>
+                                  ) : (
+                                    <span className="text-white font-semibold text-xs">{index + 1}</span>
+                                  )
+                                }
+                              />
                             </div>
                             <div className="ml-3">
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -1975,20 +1969,14 @@ export default function GroupDetail() {
                             <div key={player.player_id} className="w-full">
                               <div className="flex flex-col rounded-lg overflow-hidden shadow-lg h-full">
                                 <div className={`bg-gradient-to-br ${colors!.bg} p-6 text-center flex-grow`}>
-                                  <div className="mb-4">
-                                    <div className={`w-24 h-24 mx-auto rounded-full overflow-hidden border-4 ${colors!.border} shadow-lg bg-blue-500`}>
-                                      {player.profile_picture ? (
-                                        <img
-                                          src={getCharacterImage(player.profile_picture)}
-                                          alt={player.player_name}
-                                          className="w-full h-full object-cover"
-                                        />
-                                      ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
-                                          {player.player_name.charAt(0).toUpperCase()}
-                                        </div>
-                                      )}
-                                    </div>
+                                  <div className="mb-4 flex justify-center">
+                                    <PlayerAvatar
+                                      profilePicture={player.profile_picture}
+                                      playerName={player.player_name}
+                                      isCPU={player.is_cpu}
+                                      size="xl"
+                                      className={`border-4 ${colors!.border} shadow-lg`}
+                                    />
                                   </div>
                                   <div className="flex items-center justify-center space-x-2 mb-2">
                                     <p className={`font-semibold ${colors!.text}`}>
@@ -2084,20 +2072,14 @@ export default function GroupDetail() {
                                 <h4 className={`text-lg font-bold bg-gradient-to-r ${bonusInfo!.color} text-transparent bg-clip-text mb-2`}>
                                   {bonusInfo!.name}
                                 </h4>
-                                <div className="mb-3">
-                                  <div className={`w-16 h-16 mx-auto rounded-full overflow-hidden border-2 ${bonusInfo!.borderColor} bg-blue-500`}>
-                                    {player.profile_picture ? (
-                                      <img
-                                        src={getCharacterImage(player.profile_picture)}
-                                        alt={player.player_name}
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
-                                        {player.player_name.charAt(0).toUpperCase()}
-                                      </div>
-                                    )}
-                                  </div>
+                                <div className="mb-3 flex justify-center">
+                                  <PlayerAvatar
+                                    profilePicture={player.profile_picture}
+                                    playerName={player.player_name}
+                                    isCPU={player.is_cpu}
+                                    size="lg"
+                                    className={`border-2 ${bonusInfo!.borderColor}`}
+                                  />
                                 </div>
                                 <div className="flex items-center justify-center space-x-2 mb-1">
                                   <p className="font-semibold text-gray-800 dark:text-gray-100">
@@ -2154,19 +2136,12 @@ export default function GroupDetail() {
                                   </td>
                                   <td className="px-4 py-3">
                                     <div className="flex items-center space-x-2">
-                                      <div className={`w-8 h-8 rounded-full overflow-hidden ${player.is_cpu ? 'bg-purple-500' : 'bg-blue-500'}`}>
-                                        {player.profile_picture ? (
-                                          <img
-                                            src={getCharacterImage(player.profile_picture)}
-                                            alt={player.player_name}
-                                            className="w-full h-full object-cover"
-                                          />
-                                        ) : (
-                                          <div className="w-full h-full flex items-center justify-center text-white text-sm font-bold">
-                                            {player.player_name.charAt(0).toUpperCase()}
-                                          </div>
-                                        )}
-                                      </div>
+                                      <PlayerAvatar
+                                        profilePicture={player.profile_picture}
+                                        playerName={player.player_name}
+                                        isCPU={player.is_cpu}
+                                        size="xs"
+                                      />
                                       <span className="text-gray-800 dark:text-gray-100">{player.player_name}</span>
                                     </div>
                                   </td>

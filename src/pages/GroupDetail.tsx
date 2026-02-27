@@ -989,6 +989,7 @@ export default function GroupDetail() {
                               theme={nivoTheme}
                               padding={0.4}
                               valueScale={{ type: 'linear' }}
+                              gridYValues={tickValues}
                               colors={({ data }) => {
                                 const pos = data.position as number;
                                 return pos === 1 ? '#eab308' :

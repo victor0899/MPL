@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Clock, Minus, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from './ui/Button';
@@ -28,6 +28,23 @@ export default function GameApprovalModal({
   const [isVoting, setIsVoting] = useState(false);
   const { user } = useAuthStore();
 
+  // Close modal on ESC key press
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isVoting) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [isOpen, isVoting, onClose]);
+
   if (!isOpen || !game) return null;
 
   // Verificar si el usuario actual ya votó
@@ -52,6 +69,13 @@ export default function GameApprovalModal({
     }
   };
 
+  // Close modal when clicking on overlay (background)
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && !isVoting) {
+      onClose();
+    }
+  };
+
   const sortedResults = game.results ?
     [...game.results].sort((a, b) => a.position - b.position) : [];
 
@@ -66,13 +90,16 @@ export default function GameApprovalModal({
 
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={handleOverlayClick}
+    >
       <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
         <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-600 p-6 rounded-t-lg">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                Partida {game.id?.slice(0, 8)}
+                Partida #{game.game_number}
               </h2>
             </div>
             <button

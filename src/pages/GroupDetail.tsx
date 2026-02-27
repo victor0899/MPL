@@ -41,38 +41,36 @@ function LastVictoryCounter({ lastVictoryDate, mapName }: { lastVictoryDate: str
   const [days, hours, minutes, seconds] = timeElapsed.split('|');
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4 py-2">
-      {/* Map Info Above */}
-      <div className="mb-4 text-center">
-        <p className="text-xs text-gray-500 dark:text-gray-400">{mapName}</p>
+    <div className="flex flex-col items-center justify-center h-full px-4">
+      {/* Map Info */}
+      <div className="mb-6 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400">{mapName}</p>
       </div>
 
-      {/* Grid 2x2 */}
-      <div className="grid grid-cols-2 grid-rows-2 gap-4 w-full max-w-md">
-        {/* Top Left: Días */}
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900 dark:to-red-800 rounded-lg p-4 shadow-sm">
-          <div className="text-5xl font-bold text-red-600 dark:text-red-300">{days}</div>
-          <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Días</div>
+      {/* Time Display */}
+      <div className="flex items-baseline gap-2 mb-4">
+        <div className="flex flex-col items-center">
+          <div className="text-5xl font-bold text-gray-800 dark:text-gray-100">{days}</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">días</div>
         </div>
-
-        {/* Top Right: Horas */}
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800 rounded-lg p-4 shadow-sm">
-          <div className="text-5xl font-bold text-orange-600 dark:text-orange-300">{hours}</div>
-          <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Horas</div>
+        <span className="text-3xl font-bold text-gray-400 dark:text-gray-500">:</span>
+        <div className="flex flex-col items-center">
+          <div className="text-5xl font-bold text-gray-800 dark:text-gray-100">{hours}</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">hrs</div>
         </div>
-
-        {/* Bottom Left: Minutos */}
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900 dark:to-yellow-800 rounded-lg p-4 shadow-sm">
-          <div className="text-5xl font-bold text-yellow-600 dark:text-yellow-300">{minutes}</div>
-          <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Minutos</div>
+        <span className="text-3xl font-bold text-gray-400 dark:text-gray-500">:</span>
+        <div className="flex flex-col items-center">
+          <div className="text-5xl font-bold text-gray-800 dark:text-gray-100">{minutes}</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">min</div>
         </div>
-
-        {/* Bottom Right: Segundos */}
-        <div className="flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-lg p-4 shadow-sm">
-          <div className="text-5xl font-bold text-green-600 dark:text-green-300">{seconds}</div>
-          <div className="text-sm text-gray-600 dark:text-gray-300 mt-2">Segundos</div>
+        <span className="text-3xl font-bold text-gray-400 dark:text-gray-500">:</span>
+        <div className="flex flex-col items-center">
+          <div className="text-5xl font-bold text-gray-800 dark:text-gray-100">{seconds}</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">seg</div>
         </div>
       </div>
+
+      <p className="text-xs text-gray-500 dark:text-gray-400 text-center">desde tu última victoria</p>
     </div>
   );
 }
@@ -1447,7 +1445,7 @@ export default function GroupDetail() {
                   {statsMode === 'personal' && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {/* Row 1 - Personal Coins Chart */}
-                      <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
+                      <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center mb-4">
                           <Coins className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
                           <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
@@ -1598,8 +1596,70 @@ export default function GroupDetail() {
                         </div>
                       </div>
 
-                      {/* Personal Stars Chart */}
+                      {/* Last Victory Timer */}
                       <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center justify-center mb-4">
+                          <Trophy className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            Última Victoria
+                          </h4>
+                        </div>
+
+                        <div className="h-80 md:h-64">
+                          {(() => {
+                            // Get user's member ID
+                            const userMember = group?.members?.find(m => m.user_id === user?.id);
+                            if (!userMember) {
+                              return (
+                                <div className="flex flex-col items-center justify-center h-full">
+                                  <div className="text-8xl font-bold text-gray-400 mb-6">--</div>
+                                  <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">No eres miembro del grupo</p>
+                                </div>
+                              );
+                            }
+
+                            const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                            if (gamesWithResults.length === 0) {
+                              return (
+                                <div className="flex flex-col items-center justify-center h-full">
+                                  <div className="text-4xl text-gray-400 dark:text-gray-500 mb-2">🏆</div>
+                                  <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">Sin datos</p>
+                                </div>
+                              );
+                            }
+
+                            // Find last victory
+                            const victories = gamesWithResults
+                              .filter(game => {
+                                const userResult = game.results?.find(r => r.player_id === userMember.id);
+                                return userResult && userResult.position === 1;
+                              })
+                              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+                            if (victories.length === 0) {
+                              return (
+                                <div className="flex flex-col items-center justify-center h-full">
+                                  <div className="text-8xl font-bold text-red-400 mb-6">∞</div>
+                                  <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">Aún no tienes victorias</p>
+                                </div>
+                              );
+                            }
+
+                            const lastVictory = victories[0];
+
+                            return (
+                              <LastVictoryCounter
+                                lastVictoryDate={lastVictory.created_at}
+                                mapName={lastVictory.map?.name || 'Mapa desconocido'}
+                              />
+                            );
+                          })()}
+                        </div>
+                      </div>
+
+                      {/* Personal Stars Chart */}
+                      <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center mb-4">
                           <Star className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
                           <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
@@ -1897,144 +1957,6 @@ export default function GroupDetail() {
                             );
                           })()}
                         </div>
-                      </div>
-
-                      {/* Row 2 - Personal Minigame Bonus */}
-                      <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
-                        <div className="flex items-center justify-center mb-3">
-                          <Target className="w-6 h-6 mr-2 text-green-500 dark:text-green-400" />
-                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                            Mi Bono de Minijuegos
-                          </h4>
-                        </div>
-                        {(() => {
-                          // Get user's member ID
-                          const userMember = group?.members?.find(m => m.user_id === user?.id);
-                          if (!userMember) {
-                            return (
-                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                                <div className="text-8xl font-bold text-gray-400 mb-6">--</div>
-                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">No eres miembro del grupo</p>
-                              </div>
-                            );
-                          }
-
-                          const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
-
-                          if (gamesWithResults.length === 0) {
-                            return (
-                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                                <div className="text-8xl font-bold text-gray-400 mb-6">--</div>
-                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">Sin datos</p>
-                              </div>
-                            );
-                          }
-
-                          // Find games where user won the most minigames
-                          const userMinigameWins: number[] = [];
-
-                          gamesWithResults.forEach(game => {
-                            const maxMinigames = Math.max(...(game.results?.map(r => r.minigames_won) || [0]));
-                            const userResult = game.results?.find(r => r.player_id === userMember.id);
-
-                            if (userResult && maxMinigames > 0 && userResult.minigames_won === maxMinigames) {
-                              userMinigameWins.push(userResult.minigames_won);
-                            }
-                          });
-
-                          if (userMinigameWins.length === 0) {
-                            return (
-                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                                <div className="text-8xl font-bold text-gray-400 mb-6">0</div>
-                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">Veces que has ganado el bono</p>
-                              </div>
-                            );
-                          }
-
-                          const average = userMinigameWins.reduce((sum, val) => sum + val, 0) / userMinigameWins.length;
-
-                          return (
-                            <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                              <div className="text-8xl font-bold text-green-600 mb-6">
-                                {average.toFixed(1)}
-                              </div>
-                              <p className="text-sm text-gray-600 text-center px-4 max-w-xs">
-                                Promedio de minijuegos cuando gané el bono
-                              </p>
-                            </div>
-                          );
-                        })()}
-                      </div>
-
-                      {/* Last Victory Timer */}
-                      <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
-                        <div className="flex items-center justify-center mb-3">
-                          <Trophy className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
-                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                            Última Victoria
-                          </h4>
-                        </div>
-                        {(() => {
-                          // Get user's member ID
-                          const userMember = group?.members?.find(m => m.user_id === user?.id);
-                          if (!userMember) {
-                            return (
-                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                                <div className="text-8xl font-bold text-gray-400 mb-6">--</div>
-                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">No eres miembro del grupo</p>
-                              </div>
-                            );
-                          }
-
-                          const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
-
-                          if (gamesWithResults.length === 0) {
-                            return (
-                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                                <div className="text-4xl text-gray-400 mb-2">🏆</div>
-                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">Sin datos</p>
-                              </div>
-                            );
-                          }
-
-                          // Find last victory
-                          const victories = gamesWithResults
-                            .filter(game => {
-                              const userResult = game.results?.find(r => r.player_id === userMember.id);
-                              return userResult && userResult.position === 1;
-                            })
-                            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
-                          if (victories.length === 0) {
-                            return (
-                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
-                                <div className="text-8xl font-bold text-red-400 mb-6">∞</div>
-                                <p className="text-sm text-gray-600 text-center px-4 max-w-xs">Aún no tienes victorias</p>
-                              </div>
-                            );
-                          }
-
-                          const lastVictory = victories[0];
-
-                          return (
-                            <LastVictoryCounter
-                              lastVictoryDate={lastVictory.created_at}
-                              mapName={lastVictory.map?.name || 'Mapa desconocido'}
-                            />
-                          );
-                        })()}
-                      </div>
-
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 text-center border-2 border-dashed border-gray-300 dark:border-gray-600">
-                        <div className="mb-3">
-                          <span className="text-3xl">🏅</span>
-                        </div>
-                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
-                          Estadística Personal 6
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          Placeholder para estadística
-                        </p>
                       </div>
                     </div>
                   )}

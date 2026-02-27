@@ -87,6 +87,7 @@ export class SupabaseAPI {
         members:group_members(*),
         games(
           id,
+          game_number,
           status,
           played_at,
           map_id,
@@ -96,7 +97,7 @@ export class SupabaseAPI {
         )
       `)
       .eq('id', id)
-      .order('played_at', { ascending: false, referencedTable: 'games' })
+      .order('game_number', { ascending: false, referencedTable: 'games' })
       .single();
 
     if (error) {

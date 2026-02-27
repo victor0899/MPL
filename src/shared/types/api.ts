@@ -77,6 +77,7 @@ export interface Game {
   played_at: string;
   status: 'pending' | 'approved' | 'rejected';
   submitted_by?: string;
+  game_number: number;
   created_at: string;
   updated_at: string;
   map?: Map;

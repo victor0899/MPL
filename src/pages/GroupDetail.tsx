@@ -687,7 +687,7 @@ export default function GroupDetail() {
                       <div>
                         <div className="font-medium text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
                           <Gamepad2 className="w-4 h-4" />
-                          <span>Partida {game.id?.slice(0, 8)}</span>
+                          <span>Partida #{game.game_number}</span>
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5" />

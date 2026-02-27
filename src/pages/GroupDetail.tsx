@@ -1658,158 +1658,6 @@ export default function GroupDetail() {
                         </div>
                       </div>
 
-                      {/* Personal Stars Chart */}
-                      <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
-                        <div className="flex items-center mb-4">
-                          <Star className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
-                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-                            Mis Estrellas por Partida
-                          </h4>
-                        </div>
-
-                        <div className="h-80 md:h-64 overflow-x-auto">
-                          <div className="min-w-[800px] h-full">
-                            {(() => {
-                              // Get user's member ID
-                              const userMember = group?.members?.find(m => m.user_id === user?.id);
-                              if (!userMember) {
-                                return (
-                                  <div className="h-full flex items-center justify-center">
-                                    <div className="text-center text-gray-500">
-                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                      <p className="text-sm">No eres miembro de este grupo</p>
-                                    </div>
-                                  </div>
-                                );
-                              }
-
-                              const gamesWithResults = approvedGamesWithResults
-                                .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
-
-                              if (gamesWithResults.length === 0) {
-                                return (
-                                  <div className="h-full flex items-center justify-center">
-                                    <div className="text-center text-gray-500">
-                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                      <p className="text-sm">No hay datos disponibles</p>
-                                    </div>
-                                  </div>
-                                );
-                              }
-
-                              // Filter results for current user
-                              const userStarsData = {
-                                earned: [] as Array<{ x: string; y: number }>,
-                                final: [] as Array<{ x: string; y: number }>
-                              };
-
-                              gamesWithResults.forEach((game, index) => {
-                                const userResult = game.results?.find(r => r.player_id === userMember.id);
-                                if (userResult) {
-                                  userStarsData.earned.push({
-                                    x: `P${index + 1}`,
-                                    y: userResult.total_stars_earned || 0
-                                  });
-                                  userStarsData.final.push({
-                                    x: `P${index + 1}`,
-                                    y: userResult.stars || 0
-                                  });
-                                }
-                              });
-
-                              if (userStarsData.earned.length === 0) {
-                                return (
-                                  <div className="h-full flex items-center justify-center">
-                                    <div className="text-center text-gray-500">
-                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
-                                      <p className="text-sm">No has participado en partidas</p>
-                                    </div>
-                                  </div>
-                                );
-                              }
-
-                              const lineData = [
-                                {
-                                  id: 'Obtenidas',
-                                  data: userStarsData.earned
-                                },
-                                {
-                                  id: 'Finales',
-                                  data: userStarsData.final
-                                }
-                              ];
-
-                              return (
-                                <ResponsiveLine
-                                  data={lineData}
-                                  margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
-                                  theme={nivoTheme}
-                                  xScale={{ type: 'point' }}
-                                  yScale={{
-                                    type: 'linear',
-                                    min: 0,
-                                    max: 'auto'
-                                  }}
-                                  curve="monotoneX"
-                                  axisTop={null}
-                                  axisRight={null}
-                                  axisBottom={{
-                                    tickSize: 5,
-                                    tickPadding: 5,
-                                    tickRotation: 0,
-                                    legend: 'Partida',
-                                    legendOffset: 36,
-                                    legendPosition: 'middle'
-                                  }}
-                                  axisLeft={{
-                                    tickSize: 5,
-                                    tickPadding: 5,
-                                    tickRotation: 0,
-                                    legend: 'Estrellas',
-                                    legendOffset: -50,
-                                    legendPosition: 'middle',
-                                    format: (value) => Math.floor(value)
-                                  }}
-                                  colors={['#fbbf24', '#ef4444']}
-                                  pointSize={8}
-                                  pointColor={{ theme: 'background' }}
-                                  pointBorderWidth={2}
-                                  pointBorderColor={{ from: 'serieColor' }}
-                                  useMesh={true}
-                                  legends={[
-                                    {
-                                      anchor: 'bottom-right',
-                                      direction: 'column',
-                                      justify: false,
-                                      translateX: 100,
-                                      translateY: 0,
-                                      itemsSpacing: 0,
-                                      itemDirection: 'left-to-right',
-                                      itemWidth: 80,
-                                      itemHeight: 20,
-                                      itemTextColor: isDarkMode ? '#e5e7eb' : '#333',
-                                      itemOpacity: 0.75,
-                                      symbolSize: 12,
-                                      symbolShape: 'circle',
-                                      symbolBorderColor: 'rgba(0, 0, 0, .5)',
-                                      effects: [
-                                        {
-                                          on: 'hover',
-                                          style: {
-                                            itemBackground: 'rgba(0, 0, 0, .03)',
-                                            itemOpacity: 1
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  ]}
-                                />
-                              );
-                            })()}
-                          </div>
-                        </div>
-                      </div>
-
                       {/* Position Distribution Pie Chart */}
                       <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
                         <div className="flex items-center mb-4">
@@ -1956,6 +1804,165 @@ export default function GroupDetail() {
                               />
                             );
                           })()}
+                        </div>
+                      </div>
+
+                      {/* Personal Stars Chart */}
+                      <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center mb-4">
+                          <Star className="w-6 h-6 mr-2 text-yellow-500 dark:text-yellow-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            Mis Estrellas por Partida
+                          </h4>
+                        </div>
+
+                        <div className="h-80 md:h-64 overflow-x-auto">
+                          <div className="min-w-[800px] h-full">
+                            {(() => {
+                              // Get user's member ID
+                              const userMember = group?.members?.find(m => m.user_id === user?.id);
+                              if (!userMember) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No eres miembro de este grupo</p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              const gamesWithResults = approvedGamesWithResults
+                                .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+                              if (gamesWithResults.length === 0) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No hay datos disponibles</p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              // Filter results for current user
+                              const userStarsData = {
+                                earned: [] as Array<{ x: string; y: number }>,
+                                final: [] as Array<{ x: string; y: number }>
+                              };
+
+                              gamesWithResults.forEach((game, index) => {
+                                const userResult = game.results?.find(r => r.player_id === userMember.id);
+                                if (userResult) {
+                                  userStarsData.earned.push({
+                                    x: `P${index + 1}`,
+                                    y: userResult.total_stars_earned || 0
+                                  });
+                                  userStarsData.final.push({
+                                    x: `P${index + 1}`,
+                                    y: userResult.stars || 0
+                                  });
+                                }
+                              });
+
+                              if (userStarsData.earned.length === 0) {
+                                return (
+                                  <div className="h-full flex items-center justify-center">
+                                    <div className="text-center text-gray-500">
+                                      <Star className="w-16 h-16 mx-auto mb-2 text-gray-400" />
+                                      <p className="text-sm">No has participado en partidas</p>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              const lineData = [
+                                {
+                                  id: 'Obtenidas',
+                                  data: userStarsData.earned
+                                },
+                                {
+                                  id: 'Finales',
+                                  data: userStarsData.final
+                                }
+                              ];
+
+                              // Calculate max stars for integer tick values
+                              const allStarsValues = [...userStarsData.earned, ...userStarsData.final].map(d => d.y);
+                              const maxStars = Math.max(...allStarsValues);
+                              const tickValues = Array.from({ length: maxStars + 1 }, (_, i) => i);
+
+                              return (
+                                <ResponsiveLine
+                                  data={lineData}
+                                  margin={{ top: 20, right: 110, bottom: 50, left: 60 }}
+                                  theme={nivoTheme}
+                                  xScale={{ type: 'point' }}
+                                  yScale={{
+                                    type: 'linear',
+                                    min: 0,
+                                    max: 'auto'
+                                  }}
+                                  gridYValues={tickValues}
+                                  curve="monotoneX"
+                                  axisTop={null}
+                                  axisRight={null}
+                                  axisBottom={{
+                                    tickSize: 5,
+                                    tickPadding: 5,
+                                    tickRotation: 0,
+                                    legend: 'Partida',
+                                    legendOffset: 36,
+                                    legendPosition: 'middle'
+                                  }}
+                                  axisLeft={{
+                                    tickSize: 5,
+                                    tickPadding: 5,
+                                    tickRotation: 0,
+                                    legend: 'Estrellas',
+                                    legendOffset: -50,
+                                    legendPosition: 'middle',
+                                    tickValues: tickValues,
+                                    format: (value) => Math.floor(value)
+                                  }}
+                                  colors={['#fbbf24', '#ef4444']}
+                                  pointSize={8}
+                                  pointColor={{ theme: 'background' }}
+                                  pointBorderWidth={2}
+                                  pointBorderColor={{ from: 'serieColor' }}
+                                  useMesh={true}
+                                  legends={[
+                                    {
+                                      anchor: 'bottom-right',
+                                      direction: 'column',
+                                      justify: false,
+                                      translateX: 100,
+                                      translateY: 0,
+                                      itemsSpacing: 0,
+                                      itemDirection: 'left-to-right',
+                                      itemWidth: 80,
+                                      itemHeight: 20,
+                                      itemTextColor: isDarkMode ? '#e5e7eb' : '#333',
+                                      itemOpacity: 0.75,
+                                      symbolSize: 12,
+                                      symbolShape: 'circle',
+                                      symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                                      effects: [
+                                        {
+                                          on: 'hover',
+                                          style: {
+                                            itemBackground: 'rgba(0, 0, 0, .03)',
+                                            itemOpacity: 1
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]}
+                                />
+                              );
+                            })()}
+                          </div>
                         </div>
                       </div>
                     </div>

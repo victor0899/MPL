@@ -372,11 +372,17 @@ export default function CreateGame() {
 
       const result = await imageAnalysisService.analyzeGameResults(
         uploadedImage.base64,
-        playerNames
+        playerNames,
+        group.id
       );
 
       if (!result.success || !result.players || result.players.length === 0) {
-        toast.error(result.error || 'No se pudieron extraer datos de la imagen');
+        // Check if it's a rate limit error
+        const errorMsg = result.error?.includes('Límite diario alcanzado')
+          ? result.error
+          : result.error || 'No se pudieron extraer datos de la imagen';
+
+        toast.error(errorMsg, { duration: 5000 });
         setAnalysisConfidence('low');
         return;
       }

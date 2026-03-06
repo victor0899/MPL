@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 interface PlayerResult {
   name: string;
@@ -12,6 +13,7 @@ interface PlayerResult {
 interface AnalysisRequest {
   imageBase64: string;
   playerNames: string[];
+  groupId: string;
 }
 
 interface AnalysisResponse {
@@ -47,6 +49,28 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Get authenticated user
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return new Response(
+        JSON.stringify({ error: "Invalid authentication" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
     // Get Anthropic API key from environment
     const anthropicApiKey = Deno.env.get("ANTHROPIC_API_KEY");
     if (!anthropicApiKey) {
@@ -61,13 +85,51 @@ Deno.serve(async (req) => {
     }
 
     // Parse request body
-    const { imageBase64, playerNames }: AnalysisRequest = await req.json();
+    const { imageBase64, playerNames, groupId }: AnalysisRequest = await req.json();
 
-    if (!imageBase64 || !playerNames || !Array.isArray(playerNames)) {
+    if (!imageBase64 || !playerNames || !Array.isArray(playerNames) || !groupId) {
       return new Response(
         JSON.stringify({ error: "Invalid request body" }),
         {
           status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Rate limiting: Check if group has exceeded daily limit (5 successful analyses per day)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const { count, error: countError } = await supabase
+      .from("image_analysis_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("group_id", groupId)
+      .eq("success", true)
+      .gte("analyzed_at", today.toISOString());
+
+    if (countError) {
+      console.error("Error checking rate limit:", countError);
+      return new Response(
+        JSON.stringify({ error: "Error checking rate limit" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    if (count !== null && count >= 5) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Límite diario alcanzado. Tu grupo ha usado 5 escaneos hoy. Intenta mañana o ingresa los datos manualmente.",
+          confidence: "low",
+          players: [],
+          rateLimitExceeded: true,
+        }),
+        {
+          status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
@@ -243,6 +305,20 @@ Do not include any other text, explanations, or markdown formatting. Only return
       confidence: analysisData.confidence || "medium",
       players: sanitizedPlayers,
     };
+
+    // Log successful analysis for rate limiting
+    const { error: logError } = await supabase
+      .from("image_analysis_logs")
+      .insert({
+        group_id: groupId,
+        user_id: user.id,
+        success: true,
+      });
+
+    if (logError) {
+      console.error("Error logging analysis:", logError);
+      // Don't fail the request if logging fails, just log the error
+    }
 
     return new Response(JSON.stringify(response), {
       status: 200,

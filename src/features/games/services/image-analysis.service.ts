@@ -12,13 +12,15 @@ export class ImageAnalysisService {
    * @param imageBase64 - Base64 encoded image data (without data:image/... prefix)
    * @param playerNames - Array of player names from the group for context
    * @param groupId - ID of the group for rate limiting
+   * @param mediaType - MIME type of the image (e.g., 'image/jpeg', 'image/png')
    * @returns Analysis result with extracted player data and confidence level
    * @throws Error if analysis fails or user is not authenticated
    */
   async analyzeGameResults(
     imageBase64: string,
     playerNames: string[],
-    groupId: string
+    groupId: string,
+    mediaType?: string
   ): Promise<ImageAnalysisResult> {
     try {
       // Get current session to ensure user is authenticated
@@ -36,6 +38,7 @@ export class ImageAnalysisService {
             imageBase64,
             playerNames,
             groupId,
+            mediaType,
           },
         }
       );

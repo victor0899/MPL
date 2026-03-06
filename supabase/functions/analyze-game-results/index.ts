@@ -14,6 +14,7 @@ interface AnalysisRequest {
   imageBase64: string;
   playerNames: string[];
   groupId: string;
+  mediaType?: string;
 }
 
 interface AnalysisResponse {
@@ -100,7 +101,7 @@ Deno.serve(async (req) => {
     }
 
     // Parse request body
-    const { imageBase64, playerNames, groupId }: AnalysisRequest = await req.json();
+    const { imageBase64, playerNames, groupId, mediaType }: AnalysisRequest = await req.json();
 
     if (!imageBase64 || !playerNames || !Array.isArray(playerNames) || !groupId) {
       return new Response(
@@ -257,7 +258,7 @@ Do not include any other text, explanations, or markdown formatting. Only return
               type: "image",
               source: {
                 type: "base64",
-                media_type: "image/jpeg",
+                media_type: mediaType || "image/jpeg",
                 data: imageBase64,
               },
             },

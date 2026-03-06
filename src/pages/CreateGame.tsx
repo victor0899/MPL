@@ -371,7 +371,8 @@ export default function CreateGame() {
       const result = await imageAnalysisService.analyzeGameResults(
         uploadedImage.base64,
         playerNames,
-        group.id
+        group.id,
+        uploadedImage.mediaType
       );
 
       if (!result.success || !result.players || result.players.length === 0) {
@@ -770,7 +771,7 @@ export default function CreateGame() {
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-purple-500 dark:text-purple-400" />
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                Escaneo Rápido
+                Cargar Partida
               </h2>
               <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full font-medium">
                 Opcional
@@ -778,7 +779,7 @@ export default function CreateGame() {
             </div>
 
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              Sube una foto de la pantalla de resultados y los campos se llenarán automáticamente
+              Carga la foto de resultados y la IA la analizará y llenará los datos según corresponda
             </p>
 
             <ImageUpload

@@ -37,4 +37,5 @@ export interface ImageUploadData {
   file: File;
   base64: string;
   preview: string;
+  mediaType: string;
 }

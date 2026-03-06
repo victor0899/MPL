@@ -1,5 +1,5 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Camera } from 'lucide-react';
 import { cn } from '@/shared/utils/cn';
 import type { ImageUploadData } from '../types/image-analysis.types';
 
@@ -11,7 +11,15 @@ interface ImageUploadProps {
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+const ACCEPTED_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/heic',
+  'image/heif',
+  'image/webp',
+  'image/gif'
+];
 
 export function ImageUpload({
   onImageSelect,
@@ -21,10 +29,12 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      return 'Por favor sube un archivo PNG o JPG';
+    // Check if it's an image (more permissive for mobile formats)
+    if (!file.type.startsWith('image/')) {
+      return 'Por favor sube un archivo de imagen';
     }
     if (file.size > MAX_FILE_SIZE) {
       return 'La imagen debe ser menor a 5MB';
@@ -61,6 +71,7 @@ export function ImageUpload({
         file,
         base64,
         preview,
+        mediaType: file.type || 'image/jpeg',
       });
     } catch (error) {
       console.error('Error processing file:', error);
@@ -114,58 +125,92 @@ export function ImageUpload({
     }
   };
 
+  const handleCameraClick = () => {
+    if (!disabled && !isAnalyzing) {
+      cameraInputRef.current?.click();
+    }
+  };
+
   return (
     <div className="space-y-3">
       {!currentImage ? (
-        <div
-          onClick={handleClick}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          className={cn(
-            'relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all',
-            'hover:border-mario-blue hover:bg-mario-blue/5',
-            isDragging && 'border-mario-blue bg-mario-blue/10 scale-[1.02]',
-            disabled || isAnalyzing
-              ? 'opacity-50 cursor-not-allowed'
-              : 'cursor-pointer',
-            'dark:border-gray-600 dark:hover:border-mario-blue dark:hover:bg-mario-blue/10'
-          )}
-        >
+        <>
+          {/* Hidden file inputs */}
           <input
             ref={fileInputRef}
             type="file"
-            accept={ACCEPTED_TYPES.join(',')}
+            accept="image/*"
+            onChange={handleFileInputChange}
+            disabled={disabled || isAnalyzing}
+            className="hidden"
+          />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
             onChange={handleFileInputChange}
             disabled={disabled || isAnalyzing}
             className="hidden"
           />
 
-          <div className="flex flex-col items-center gap-3">
-            <div
-              className={cn(
-                'p-4 rounded-full transition-colors',
-                'bg-mario-blue/10 dark:bg-mario-blue/20'
-              )}
-            >
-              <Upload
-                className={cn(
-                  'w-8 h-8 transition-colors',
-                  'text-mario-blue dark:text-mario-blue-light'
-                )}
-              />
+          {/* Drag and drop area */}
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            className={cn(
+              'border-2 border-dashed rounded-lg p-6 text-center transition-all',
+              isDragging && 'border-mario-blue bg-mario-blue/10 scale-[1.02]',
+              disabled || isAnalyzing
+                ? 'opacity-50'
+                : 'border-gray-300 dark:border-gray-600',
+            )}
+          >
+            <div className="flex flex-col items-center gap-3 mb-4">
+              <Upload className="w-10 h-10 text-gray-400" />
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Arrastra una imagen aquí o usa los botones abajo
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500">
+                Hasta 5MB • Formatos: JPG, PNG, HEIC, WebP
+              </p>
             </div>
 
-            <div>
-              <p className="text-base font-medium text-gray-900 dark:text-gray-100 mb-1">
-                Arrastra una imagen o haz click para seleccionar
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                PNG o JPG hasta 5MB
-              </p>
+            {/* Action buttons */}
+            <div className="flex gap-3 justify-center">
+              <button
+                type="button"
+                onClick={handleClick}
+                disabled={disabled || isAnalyzing}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors',
+                  'bg-mario-blue hover:bg-mario-blue/90 text-white',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  'dark:bg-mario-blue dark:hover:bg-mario-blue/80'
+                )}
+              >
+                <Upload className="w-4 h-4" />
+                Subir Imagen
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCameraClick}
+                disabled={disabled || isAnalyzing}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors',
+                  'bg-purple-500 hover:bg-purple-600 text-white',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  'dark:bg-purple-600 dark:hover:bg-purple-700'
+                )}
+              >
+                <Camera className="w-4 h-4" />
+                Tomar Foto
+              </button>
             </div>
           </div>
-        </div>
+        </>
       ) : (
         <div className="relative">
           {/* Loading overlay */}
@@ -173,7 +218,7 @@ export function ImageUpload({
             <div className="absolute inset-0 bg-black/50 dark:bg-black/70 rounded-lg flex items-center justify-center z-10">
               <div className="text-center">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent mb-3" />
-                <p className="text-white font-medium">Analizando con Claude...</p>
+                <p className="text-white font-medium">Pensando...</p>
               </div>
             </div>
           )}

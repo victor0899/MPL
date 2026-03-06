@@ -109,12 +109,12 @@ export default function CreateGroup() {
   const currentRuleSet = ruleSets[currentCardIndex];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
             <div className="mb-8">
-              <h2 className="text-3xl font-mario text-gray-900">
+              <h2 className="text-3xl font-mario text-gray-900 dark:text-white">
                 Crea tu grupo
               </h2>
             </div>
@@ -123,7 +123,7 @@ export default function CreateGroup() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Columna 1: Información básica (1/3) */}
                 <div className="space-y-6 lg:col-span-1">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Información Básica</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Información Básica</h3>
 
                   <Input
                     type="text"
@@ -143,7 +143,7 @@ export default function CreateGroup() {
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Describe tu liga de Mario Party..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
                       rows={4}
                       maxLength={200}
                     />
@@ -157,7 +157,7 @@ export default function CreateGroup() {
                       onChange={(e) => setIsPublic(e.target.checked)}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <label htmlFor="isPublic" className="ml-2 text-sm text-gray-700">
+                    <label htmlFor="isPublic" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                       Liga pública (otros pueden encontrarla y solicitar unirse)
                     </label>
                   </div>
@@ -165,7 +165,7 @@ export default function CreateGroup() {
 
                 {/* Columna 2: Sistema de puntuación con carrusel (2/3) */}
                 <div className="lg:col-span-2">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4 text-right">Sistema de Puntuación</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 text-right">Sistema de Puntuación</h3>
 
                   <div className="flex gap-6">
                     {/* Personaje a la izquierda (Toad o Toadette) */}
@@ -291,7 +291,7 @@ export default function CreateGroup() {
                 </div>
               </div>
 
-              <div className="flex space-x-4 mt-8 pt-6 border-t border-gray-200">
+              <div className="flex space-x-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <Button
                   type="button"
                   variant="secondary"

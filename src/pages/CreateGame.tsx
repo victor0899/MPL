@@ -435,7 +435,6 @@ export default function CreateGame() {
     } catch (error) {
       console.error('Error analyzing image:', error);
       toast.error('Error al analizar la imagen');
-      setAnalysisConfidence('low');
     } finally {
       setIsAnalyzing(false);
     }

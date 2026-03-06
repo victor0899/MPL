@@ -12,7 +12,7 @@ import { getRuleSetInfo } from '../shared/utils/rules';
 import type { Group, Map, CreateGameResultRequest } from '../shared/types/api';
 import { ImageUpload } from '../features/games/components';
 import { imageAnalysisService } from '../features/games/services';
-import type { ImageUploadData, AnalysisConfidence } from '../features/games/types';
+import type { ImageUploadData } from '../features/games/types';
 
 interface PlayerResult extends CreateGameResultRequest {
   playerId: string;
@@ -70,7 +70,6 @@ export default function CreateGame() {
   // Image scanning states
   const [uploadedImage, setUploadedImage] = useState<ImageUploadData | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisConfidence, setAnalysisConfidence] = useState<AnalysisConfidence | null>(null);
 
   useEffect(() => {
     loadInitialData();
@@ -353,8 +352,7 @@ export default function CreateGame() {
   const handleImageSelect = (imageData: ImageUploadData | null) => {
     setUploadedImage(imageData);
     if (!imageData) {
-      setAnalysisConfidence(null);
-    }
+      }
   };
 
   const handleAnalyzeImage = async () => {
@@ -383,11 +381,8 @@ export default function CreateGame() {
           : result.error || 'No se pudieron extraer datos de la imagen';
 
         toast.error(errorMsg, { duration: 5000 });
-        setAnalysisConfidence('low');
         return;
       }
-
-      setAnalysisConfidence(result.confidence);
 
       // Match extracted names with group members and update player results
       setPlayerResults(prev => {
@@ -448,7 +443,6 @@ export default function CreateGame() {
 
   const handleClearImage = () => {
     setUploadedImage(null);
-    setAnalysisConfidence(null);
   };
 
   const validateForm = (): boolean => {

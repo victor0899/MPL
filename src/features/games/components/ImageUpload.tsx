@@ -1,6 +1,5 @@
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
-import { Button } from '@/shared/components/ui/Button';
 import { cn } from '@/shared/utils/cn';
 import type { ImageUploadData } from '../types/image-analysis.types';
 

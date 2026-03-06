@@ -11,15 +11,6 @@ interface ImageUploadProps {
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/heic',
-  'image/heif',
-  'image/webp',
-  'image/gif'
-];
 
 export function ImageUpload({
   onImageSelect,

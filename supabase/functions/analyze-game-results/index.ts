@@ -49,21 +49,27 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    // Initialize Supabase client with proper authentication
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      {
+        global: {
+          headers: { Authorization: authHeader },
+        },
+      }
+    );
 
     // Get authenticated user
     const {
       data: { user },
       error: userError,
-    } = await supabase.auth.getUser();
+    } = await supabaseClient.auth.getUser();
+
     if (userError || !user) {
+      console.error("Auth error:", userError);
       return new Response(
-        JSON.stringify({ error: "Invalid authentication" }),
+        JSON.stringify({ error: "Invalid authentication", details: userError?.message }),
         {
           status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -101,7 +107,7 @@ Deno.serve(async (req) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const { count, error: countError } = await supabase
+    const { count, error: countError } = await supabaseClient
       .from("image_analysis_logs")
       .select("*", { count: "exact", head: true })
       .eq("group_id", groupId)
@@ -307,7 +313,7 @@ Do not include any other text, explanations, or markdown formatting. Only return
     };
 
     // Log successful analysis for rate limiting
-    const { error: logError } = await supabase
+    const { error: logError } = await supabaseClient
       .from("image_analysis_logs")
       .insert({
         group_id: groupId,

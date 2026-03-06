@@ -227,7 +227,6 @@ export const useAuthStore = create<AuthState>()(
       initialize: async () => {
         if (get().initialized) return;
 
-        console.log('Initializing auth...');
         set({ initialized: true, loading: true });
 
         try {
@@ -242,8 +241,6 @@ export const useAuthStore = create<AuthState>()(
 
           // Set up auth listener and store subscription for cleanup
           const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            console.log('Auth event:', event);
-
             if (event === 'SIGNED_OUT' || !session) {
               set({
                 session: null,
@@ -254,7 +251,6 @@ export const useAuthStore = create<AuthState>()(
               useGroupsStore.getState().clearGroups();
             } else if (event === 'PASSWORD_RECOVERY') {
               // Handle password recovery - user is authenticated but should reset password
-              console.log('Password recovery event detected');
               get().setSession(session);
               // Don't fetch profile or redirect, let the reset password page handle it
             } else if (event === 'SIGNED_IN' && session) {

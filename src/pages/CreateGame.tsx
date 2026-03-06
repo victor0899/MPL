@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { Sparkles } from 'lucide-react';
 import { Button, Input } from '../shared/components';
 import { WarioLoader } from '../shared/components/ui';
 import { supabaseAPI } from '../shared/services/supabase';
@@ -9,6 +10,9 @@ import { withTimeout, TIMEOUTS } from '../shared/utils/timeout';
 import { getMapImageUrl } from '../shared/utils/maps';
 import { getRuleSetInfo } from '../shared/utils/rules';
 import type { Group, Map, CreateGameResultRequest } from '../shared/types/api';
+import { ImageUpload } from '../features/games/components';
+import { imageAnalysisService } from '../features/games/services';
+import type { ImageUploadData, AnalysisConfidence } from '../features/games/types';
 
 interface PlayerResult extends CreateGameResultRequest {
   playerId: string;
@@ -62,6 +66,11 @@ export default function CreateGame() {
   const [mapSelected, setMapSelected] = useState(false);
 
   const [playerResults, setPlayerResults] = useState<PlayerResult[]>([]);
+
+  // Image scanning states
+  const [uploadedImage, setUploadedImage] = useState<ImageUploadData | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisConfidence, setAnalysisConfidence] = useState<AnalysisConfidence | null>(null);
 
   useEffect(() => {
     loadInitialData();
@@ -306,6 +315,140 @@ export default function CreateGame() {
 
       return calculatePositions(updated);
     });
+  };
+
+  // Fuzzy string matching helper
+  const fuzzyMatch = (str1: string, str2: string): number => {
+    const s1 = str1.toLowerCase().trim();
+    const s2 = str2.toLowerCase().trim();
+
+    if (s1 === s2) return 1;
+    if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+
+    // Levenshtein distance for similarity
+    const matrix: number[][] = [];
+    for (let i = 0; i <= s1.length; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= s2.length; j++) {
+      matrix[0][j] = j;
+    }
+    for (let i = 1; i <= s1.length; i++) {
+      for (let j = 1; j <= s2.length; j++) {
+        const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost
+        );
+      }
+    }
+
+    const distance = matrix[s1.length][s2.length];
+    const maxLen = Math.max(s1.length, s2.length);
+    return 1 - distance / maxLen;
+  };
+
+  // Image scanning handlers
+  const handleImageSelect = (imageData: ImageUploadData | null) => {
+    setUploadedImage(imageData);
+    if (!imageData) {
+      setAnalysisConfidence(null);
+    }
+  };
+
+  const handleAnalyzeImage = async () => {
+    if (!uploadedImage || !group?.members) {
+      toast.error('No hay imagen para analizar');
+      return;
+    }
+
+    setIsAnalyzing(true);
+
+    try {
+      const playerNames = group.members
+        .filter(m => m.status === 'active')
+        .map(m => m.is_cpu ? m.cpu_name! : (m.profile?.nickname || 'Usuario sin nombre'));
+
+      const result = await imageAnalysisService.analyzeGameResults(
+        uploadedImage.base64,
+        playerNames,
+        group.id
+      );
+
+      if (!result.success || !result.players || result.players.length === 0) {
+        // Check if it's a rate limit error
+        const errorMsg = result.error?.includes('Límite diario alcanzado')
+          ? result.error
+          : result.error || 'No se pudieron extraer datos de la imagen';
+
+        toast.error(errorMsg, { duration: 5000 });
+        setAnalysisConfidence('low');
+        return;
+      }
+
+      setAnalysisConfidence(result.confidence);
+
+      // Match extracted names with group members and update player results
+      setPlayerResults(prev => {
+        const updated = prev.map(player => {
+          // Find best matching scanned player
+          let bestMatch = null;
+          let bestScore = 0;
+
+          for (const scannedPlayer of result.players) {
+            const score = fuzzyMatch(player.playerName, scannedPlayer.name);
+            if (score > bestScore && score > 0.5) {
+              bestScore = score;
+              bestMatch = scannedPlayer;
+            }
+          }
+
+          // If we found a good match, update the player's stats
+          if (bestMatch) {
+            const updatedPlayer = {
+              ...player,
+              stars: bestMatch.stars,
+              coins: bestMatch.coins,
+              minigames_won: bestMatch.minigamesWon,
+            };
+
+            // Add optional ProBonus fields if present
+            if (bestMatch.totalStarsEarned !== undefined) {
+              updatedPlayer.total_stars_earned = bestMatch.totalStarsEarned;
+            }
+            if (bestMatch.totalCoinsEarned !== undefined) {
+              updatedPlayer.total_coins_earned = bestMatch.totalCoinsEarned;
+            }
+
+            return updatedPlayer;
+          }
+
+          return player;
+        });
+
+        return calculatePositions(updated);
+      });
+
+      const confidenceMessages = {
+        high: '¡Datos extraídos con alta confianza!',
+        medium: 'Datos extraídos. Verifica la precisión.',
+        low: 'Datos extraídos con baja confianza. Revisa cuidadosamente.',
+      };
+
+      toast.success(confidenceMessages[result.confidence]);
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      toast.error('Error al analizar la imagen');
+      setAnalysisConfidence('low');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleClearImage = () => {
+    setUploadedImage(null);
+    setAnalysisConfidence(null);
   };
 
   const validateForm = (): boolean => {
@@ -627,6 +770,53 @@ export default function CreateGame() {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Image Scanning Section */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                Escaneo Rápido
+              </h2>
+              <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full font-medium">
+                Opcional
+              </span>
+            </div>
+
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Sube una foto de la pantalla de resultados y los campos se llenarán automáticamente
+            </p>
+
+            <ImageUpload
+              onImageSelect={handleImageSelect}
+              isAnalyzing={isAnalyzing}
+              disabled={isSubmitting}
+              currentImage={uploadedImage}
+            />
+
+            {uploadedImage && !isAnalyzing && (
+              <div className="mt-4 flex gap-3">
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={handleAnalyzeImage}
+                  disabled={isSubmitting}
+                  className="flex-1"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Analizar Imagen y Auto-llenar
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleClearImage}
+                  disabled={isSubmitting}
+                >
+                  Limpiar
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">

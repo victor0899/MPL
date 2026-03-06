@@ -1,1 +1,1 @@
-
+export { ImageUpload } from './ImageUpload';

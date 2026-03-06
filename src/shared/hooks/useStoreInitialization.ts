@@ -10,7 +10,6 @@ export const useStoreInitialization = () => {
 
   useEffect(() => {
     if (!initialized) {
-      console.log('Initializing auth store...');
       initialize();
     }
   }, [initialize, initialized]);

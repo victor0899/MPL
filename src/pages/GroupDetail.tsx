@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Calendar, ArrowLeft, CheckCircle, XCircle, Clock, Goal, Eye, Gamepad2, ChartLine, Trophy, TrendingUpDown, Target, Coins, User, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { Calendar, ArrowLeft, CheckCircle, XCircle, Clock, Goal, Eye, Gamepad2, ChartLine, Trophy, TrendingUpDown, Target, Coins, User, ChevronLeft, ChevronRight, Star, Crown, Map as MapIcon } from 'lucide-react';
 import { ResponsiveBar } from '@nivo/bar';
 import { ResponsiveBump } from '@nivo/bump';
 import { ResponsiveLine } from '@nivo/line';
@@ -12,6 +12,8 @@ import { supabaseAPI } from '../shared/services/supabase';
 import { useAuthStore } from '../app/store/useAuthStore';
 import { formatGameDate } from '../shared/utils/dateFormat';
 import { DEFAULT_COUNTRY } from '../shared/utils/countries';
+import { getMapImageUrl } from '../shared/utils/maps';
+import { getCharacterImage } from '../shared/utils/characters';
 import type { Group, Game, LeaderboardEntry, GroupMember, LeagueBonus } from '../shared/types/api';
 
 // Component for live countdown timer
@@ -678,58 +680,103 @@ export default function GroupDetail() {
                 </div>
               ) : (
                 <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
-                  {group.games.map((game) => (
-                    <div
-                      key={game.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-                      onClick={() => handleGameClick(game)}
-                    >
-                      <div>
-                        <div className="font-medium text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
-                          <Gamepad2 className="w-4 h-4" />
-                          <span>Partida #{game.game_number}</span>
+                  {group.games.map((game) => {
+                    // Find the game with results from approvedGamesWithResults
+                    const gameWithResults = approvedGamesWithResults.find(g => g.id === game.id);
+                    const sortedResults = gameWithResults?.results ? [...gameWithResults.results].sort((a, b) => a.position - b.position) : [];
+
+                    return (
+                      <div
+                        key={game.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                        onClick={() => handleGameClick(game)}
+                      >
+                        <div className="flex-shrink-0">
+                          <div className="font-medium text-gray-800 dark:text-gray-100 flex items-center gap-1.5">
+                            <Gamepad2 className="w-4 h-4" />
+                            <span>Partida #{game.game_number}</span>
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>{formatGameDate(game.played_at)}</span>
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>{formatGameDate(game.played_at)}</span>
+
+                        {/* Player Avatars */}
+                        {sortedResults.length > 0 && (
+                          <div className="flex items-center gap-1 mx-2">
+                            {sortedResults.slice(0, 4).map((result) => (
+                              <div key={result.player_id} className="relative w-8 h-8 flex-shrink-0">
+                                <div className={`w-8 h-8 rounded-full p-0.5 ${
+                                  result.position === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
+                                  result.position === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
+                                  result.position === 3 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
+                                  'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
+                                }`}>
+                                  <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-white">
+                                    {result.player?.is_cpu ? (
+                                      result.player.cpu_avatar ? (
+                                        <img
+                                          src={getCharacterImage(result.player.cpu_avatar)}
+                                          alt={result.player.cpu_name || 'CPU'}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <span className="text-xs">🤖</span>
+                                      )
+                                    ) : result.player?.profile?.profile_picture ? (
+                                      <img
+                                        src={getCharacterImage(result.player.profile.profile_picture)}
+                                        alt={result.player?.profile?.nickname || 'Usuario'}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <span className="text-gray-500 text-[10px]">👤</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="flex items-center space-x-2">
+                          <span
+                            className={`p-2 rounded-full ${
+                              game.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              game.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}
+                            title={
+                              game.status === 'approved'
+                                ? (isAutoApproved(game) ? 'Auto-aprobada por ser el único jugador humano en el grupo' : 'Aprobada')
+                                : game.status === 'rejected'
+                                ? 'Rechazada'
+                                : 'Pendiente'
+                            }
+                          >
+                            {game.status === 'approved' ? (
+                              <CheckCircle className="w-4 h-4" />
+                            ) : game.status === 'rejected' ? (
+                              <XCircle className="w-4 h-4" />
+                            ) : (
+                              <Clock className="w-4 h-4" />
+                            )}
+                          </span>
+                          <span className="text-xs text-gray-400 flex items-center gap-1">
+                            {game.status === 'pending' ? (
+                              'Haz clic para votar'
+                            ) : (
+                              <>
+                                <Eye className="w-3 h-3" />
+                                <span className="hidden sm:inline">Ver detalles</span>
+                              </>
+                            )}
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className={`p-2 rounded-full ${
-                            game.status === 'approved' ? 'bg-green-100 text-green-800' :
-                            game.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}
-                          title={
-                            game.status === 'approved'
-                              ? (isAutoApproved(game) ? 'Auto-aprobada por ser el único jugador humano en el grupo' : 'Aprobada')
-                              : game.status === 'rejected'
-                              ? 'Rechazada'
-                              : 'Pendiente'
-                          }
-                        >
-                          {game.status === 'approved' ? (
-                            <CheckCircle className="w-4 h-4" />
-                          ) : game.status === 'rejected' ? (
-                            <XCircle className="w-4 h-4" />
-                          ) : (
-                            <Clock className="w-4 h-4" />
-                          )}
-                        </span>
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          {game.status === 'pending' ? (
-                            'Haz clic para votar'
-                          ) : (
-                            <>
-                              <Eye className="w-3 h-3" />
-                              <span>Ver detalles</span>
-                            </>
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -1438,6 +1485,275 @@ export default function GroupDetail() {
                         );
                       })()}
                     </div>
+
+                    {/* Full House */}
+                    <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center justify-center mb-3">
+                        <Crown className="w-6 h-6 mr-2 text-purple-500 dark:text-purple-400" />
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                          Full House
+                        </h4>
+                      </div>
+                      {(() => {
+                        const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                        if (gamesWithResults.length === 0) {
+                          return (
+                            <div className="text-center">
+                              <div className="text-3xl text-gray-400 dark:text-gray-500 mb-2">--</div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Sin datos</p>
+                            </div>
+                          );
+                        }
+
+                        // Count Full House occurrences per player
+                        const playerFullHouses: { [playerId: string]: number } = {};
+                        let totalFullHouses = 0;
+
+                        gamesWithResults.forEach(game => {
+                          if (!game.results || game.results.length === 0) return;
+
+                          // Find winner (position === 1)
+                          const winner = game.results.find(r => r.position === 1);
+                          if (!winner) return;
+
+                          // Find who won the minigame bonus (max minigames_won)
+                          const maxMinigames = Math.max(...game.results.map(r => r.minigames_won));
+                          const minigameWinner = game.results.find(r => r.minigames_won === maxMinigames);
+
+                          // If same player won both, it's a Full House
+                          if (minigameWinner && winner.player_id === minigameWinner.player_id && maxMinigames > 0) {
+                            if (!playerFullHouses[winner.player_id]) {
+                              playerFullHouses[winner.player_id] = 0;
+                            }
+                            playerFullHouses[winner.player_id]++;
+                            totalFullHouses++;
+                          }
+                        });
+
+                        return (
+                          <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                            <div className="text-8xl font-bold text-purple-600 dark:text-purple-400 mb-6">
+                              {totalFullHouses}
+                            </div>
+                            <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">
+                              Obtenidas durante {group?.name || 'la liga'}
+                            </p>
+                          </div>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Dominio por Mapa */}
+                    <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-center mb-6">
+                        <MapIcon className="w-6 h-6 mr-2 text-blue-500 dark:text-blue-400" />
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                          Dominio por Mapa
+                        </h4>
+                      </div>
+
+                      {(() => {
+                        const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                        if (gamesWithResults.length === 0) {
+                          return (
+                            <div className="h-64 flex items-center justify-center">
+                              <div className="text-center text-gray-500 dark:text-gray-400">
+                                <MapIcon className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                                <p className="text-sm">No se han jugado partidas aún</p>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        // Get all unique maps from games
+                        const allMaps = new Set<string>();
+                        gamesWithResults.forEach(game => {
+                          if (game.map?.name) {
+                            allMaps.add(game.map.name);
+                          }
+                        });
+
+                        // Count wins per player per map
+                        const mapPlayerStats: {
+                          [mapName: string]: {
+                            playerId: string;
+                            playerName: string;
+                            wins: number;
+                            profilePicture?: string;
+                            isCPU: boolean;
+                          }[]
+                        } = {};
+
+                        allMaps.forEach(mapName => {
+                          const playerWins: { [playerId: string]: { name: string; wins: number; profilePicture?: string; isCPU: boolean } } = {};
+
+                          // Initialize all players with 0 wins
+                          leaderboard.forEach(entry => {
+                            playerWins[entry.player_id] = {
+                              name: entry.player_name,
+                              wins: 0,
+                              profilePicture: entry.profile_picture,
+                              isCPU: entry.is_cpu
+                            };
+                          });
+
+                          // Count wins for each player on this map
+                          gamesWithResults.forEach(game => {
+                            if (game.map?.name !== mapName) return;
+
+                            const winner = game.results?.find(r => r.position === 1);
+                            if (!winner) return;
+
+                            if (playerWins[winner.player_id]) {
+                              playerWins[winner.player_id].wins++;
+                            }
+                          });
+
+                          // Convert to array and sort by wins (descending)
+                          mapPlayerStats[mapName] = Object.entries(playerWins)
+                            .map(([playerId, data]) => ({
+                              playerId,
+                              playerName: data.name,
+                              wins: data.wins,
+                              profilePicture: data.profilePicture,
+                              isCPU: data.isCPU
+                            }))
+                            .sort((a, b) => b.wins - a.wins);
+                        });
+
+                        const mapData = Array.from(allMaps).map(mapName => ({
+                          mapName,
+                          players: mapPlayerStats[mapName] || []
+                        }));
+
+                        if (mapData.length === 0) {
+                          return (
+                            <div className="h-64 flex items-center justify-center">
+                              <div className="text-center text-gray-500 dark:text-gray-400">
+                                <MapIcon className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                                <p className="text-sm">No hay datos disponibles</p>
+                              </div>
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div className="relative">
+                            {/* Left Arrow */}
+                            <button
+                              onClick={() => {
+                                const container = document.getElementById('map-dominance-scroll');
+                                if (container) {
+                                  container.scrollBy({ left: -300, behavior: 'smooth' });
+                                }
+                              }}
+                              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                              aria-label="Anterior"
+                            >
+                              <ChevronLeft className="w-6 h-6 text-gray-800 dark:text-gray-100" />
+                            </button>
+
+                            {/* Maps Container */}
+                            <div
+                              id="map-dominance-scroll"
+                              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-10 justify-center md:justify-start"
+                              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            >
+                              {mapData.map((map) => {
+                                const mapImageUrl = getMapImageUrl(map.mapName);
+
+                                return (
+                                  <div key={map.mapName} className="flex-shrink-0 w-72 flex flex-col bg-gray-50 dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                                    {/* Map Image */}
+                                    <div className="flex-shrink-0">
+                                      {mapImageUrl ? (
+                                        <img
+                                          src={mapImageUrl}
+                                          alt={map.mapName}
+                                          className="w-full h-32 object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-32 bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                          <MapIcon className="w-12 h-12 text-gray-500" />
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* Map Name and Players */}
+                                    <div className="p-4 flex flex-col items-center">
+                                      <h5 className="font-semibold text-sm text-gray-800 dark:text-gray-100 mb-4 text-center line-clamp-2 w-full" title={map.mapName}>
+                                        {map.mapName}
+                                      </h5>
+
+                                      {/* Players Row */}
+                                      <div className="flex gap-2 justify-center w-full">
+                                        {map.players.slice(0, 4).map((player, index) => (
+                                          <div key={player.playerId} className="flex flex-col items-center">
+                                            <div className="relative w-12 h-12">
+                                              <div className={`w-12 h-12 rounded-full p-0.5 ${
+                                                index === 0 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
+                                                index === 1 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
+                                                index === 2 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
+                                                'bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600'
+                                              }`}>
+                                                <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center bg-white">
+                                                  {player.isCPU ? (
+                                                    player.profilePicture ? (
+                                                      <img
+                                                        src={getCharacterImage(player.profilePicture)}
+                                                        alt={player.playerName}
+                                                        className="w-full h-full object-cover"
+                                                      />
+                                                    ) : (
+                                                      <span className="text-lg">🤖</span>
+                                                    )
+                                                  ) : player.profilePicture ? (
+                                                    <img
+                                                      src={getCharacterImage(player.profilePicture)}
+                                                      alt={player.playerName}
+                                                      className="w-full h-full object-cover"
+                                                    />
+                                                  ) : (
+                                                    <span className="text-gray-500 text-base">👤</span>
+                                                  )}
+                                                </div>
+                                              </div>
+
+                                              {/* Win count badge */}
+                                              <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[10px] border-2 border-white shadow-md ${
+                                                player.wins > 0 ? 'bg-gradient-to-br from-blue-500 to-blue-600' : 'bg-gray-400'
+                                              }`}>
+                                                {player.wins > 0 ? `x${player.wins}` : '0'}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Right Arrow */}
+                            <button
+                              onClick={() => {
+                                const container = document.getElementById('map-dominance-scroll');
+                                if (container) {
+                                  container.scrollBy({ left: 300, behavior: 'smooth' });
+                                }
+                              }}
+                              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 p-2 rounded-full shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                              aria-label="Siguiente"
+                            >
+                              <ChevronRight className="w-6 h-6 text-gray-800 dark:text-gray-100" />
+                            </button>
+                          </div>
+                        );
+                      })()}
+                    </div>
                   </div>
                   )}
 
@@ -1964,6 +2280,243 @@ export default function GroupDetail() {
                             })()}
                           </div>
                         </div>
+                      </div>
+
+                      {/* Tus Mejores Mapas */}
+                      <div className="md:col-span-2 bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center mb-6">
+                          <MapIcon className="w-6 h-6 mr-2 text-blue-500 dark:text-blue-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            Tus Mejores Mapas
+                          </h4>
+                        </div>
+
+                        {(() => {
+                          // Get user's member ID
+                          const userMember = group?.members?.find(m => m.user_id === user?.id);
+
+                          if (!userMember) {
+                            return (
+                              <div className="h-64 flex items-center justify-center">
+                                <div className="text-center text-gray-500 dark:text-gray-400">
+                                  <MapIcon className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                                  <p className="text-sm">No eres miembro de este grupo</p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                          // Get all unique maps from games
+                          const allMaps = new Set<string>();
+                          gamesWithResults.forEach(game => {
+                            if (game.map?.name) {
+                              allMaps.add(game.map.name);
+                            }
+                          });
+
+                          // Initialize all maps with 0 wins
+                          const mapWins: { [mapName: string]: number } = {};
+                          allMaps.forEach(mapName => {
+                            mapWins[mapName] = 0;
+                          });
+
+                          // Count wins per map for current user
+                          gamesWithResults.forEach(game => {
+                            const mapName = game.map?.name;
+                            if (!mapName) return;
+
+                            const userResult = game.results?.find(r => r.player_id === userMember.id);
+
+                            if (userResult && userResult.position === 1) {
+                              mapWins[mapName]++;
+                            }
+                          });
+
+                          const mapData = Object.entries(mapWins)
+                            .map(([mapName, wins]) => ({ mapName, wins }))
+                            .sort((a, b) => b.wins - a.wins);
+
+                          if (mapData.length === 0) {
+                            return (
+                              <div className="h-64 flex items-center justify-center">
+                                <div className="text-center text-gray-500 dark:text-gray-400">
+                                  <MapIcon className="w-16 h-16 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+                                  <p className="text-sm">No se han jugado partidas aún</p>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          const top3Maps = mapData.slice(0, 3);
+                          const restMaps = mapData.slice(3);
+
+                          return (
+                            <div className="flex flex-col md:flex-row gap-4">
+                              {/* Podium - Top 3 */}
+                              <div className="flex-1 space-y-2">
+                                {top3Maps.map((map, index) => {
+                                  const position = index + 1;
+                                  const colors = {
+                                    1: {
+                                      bg: 'from-yellow-300 via-yellow-400 to-yellow-500',
+                                      text: 'text-yellow-900'
+                                    },
+                                    2: {
+                                      bg: 'from-gray-300 via-gray-400 to-gray-500',
+                                      text: 'text-gray-800'
+                                    },
+                                    3: {
+                                      bg: 'from-orange-300 via-orange-400 to-orange-500',
+                                      text: 'text-orange-900'
+                                    }
+                                  }[position];
+
+                                  const mapImageUrl = getMapImageUrl(map.mapName);
+
+                                  return (
+                                    <div key={map.mapName} className={`flex items-center gap-3 p-3 rounded-lg shadow-sm bg-gradient-to-br ${colors!.bg}`}>
+                                      {/* Position Badge */}
+                                      <div className="flex-shrink-0">
+                                        <span className={`text-lg font-bold ${colors!.text}`}>
+                                          {position}°
+                                        </span>
+                                      </div>
+
+                                      {/* Map Image */}
+                                      <div className="flex-shrink-0">
+                                        {mapImageUrl ? (
+                                          <img
+                                            src={mapImageUrl}
+                                            alt={map.mapName}
+                                            className="w-16 h-12 object-cover rounded shadow-md"
+                                          />
+                                        ) : (
+                                          <div className="w-16 h-12 bg-white/30 rounded flex items-center justify-center">
+                                            <MapIcon className={`w-6 h-6 ${colors!.text}`} />
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* Map Name */}
+                                      <div className="flex-1 min-w-0">
+                                        <p className={`font-semibold text-sm ${colors!.text} truncate`} title={map.mapName}>
+                                          {map.mapName}
+                                        </p>
+                                      </div>
+
+                                      {/* Wins Count */}
+                                      <div className="flex-shrink-0 text-right">
+                                        <p className={`text-2xl font-bold ${colors!.text}`}>
+                                          {map.wins}
+                                        </p>
+                                        <p className={`text-[10px] ${colors!.text} -mt-1`}>
+                                          {map.wins === 1 ? 'victoria' : 'victorias'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Rest of maps - Right side list */}
+                              {restMaps.length > 0 && (
+                                <div className="w-full md:w-48 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 overflow-y-auto max-h-80">
+                                  <h5 className="text-sm md:text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">Otros Mapas</h5>
+                                  <div className="space-y-2">
+                                    {restMaps.map((map, index) => (
+                                      <div
+                                        key={map.mapName}
+                                        className="flex items-center justify-between p-3 md:p-2 bg-white dark:bg-gray-700 rounded shadow-sm"
+                                        title={map.mapName}
+                                      >
+                                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                                          <span className="text-sm md:text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                            {index + 4}°
+                                          </span>
+                                          <p className="text-sm md:text-xs text-gray-700 dark:text-gray-300 truncate">
+                                            {map.mapName}
+                                          </p>
+                                        </div>
+                                        <span className="text-sm md:text-xs font-bold text-blue-600 dark:text-blue-400 ml-2">
+                                          {map.wins}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </div>
+
+                      {/* My Full House */}
+                      <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-600">
+                        <div className="flex items-center justify-center mb-3">
+                          <Crown className="w-6 h-6 mr-2 text-purple-500 dark:text-purple-400" />
+                          <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                            Mis Full House
+                          </h4>
+                        </div>
+                        {(() => {
+                          // Get user's member ID
+                          const userMember = group?.members?.find(m => m.user_id === user?.id);
+
+                          if (!userMember) {
+                            return (
+                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                <div className="text-8xl font-bold text-gray-400 dark:text-gray-500 mb-6">--</div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">No eres miembro del grupo</p>
+                              </div>
+                            );
+                          }
+
+                          const gamesWithResults = approvedGamesWithResults.filter(g => g.results && g.results.length > 0);
+
+                          if (gamesWithResults.length === 0) {
+                            return (
+                              <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                                <div className="text-8xl font-bold text-purple-600 dark:text-purple-400 mb-6">0</div>
+                                <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">
+                                  Sin datos disponibles
+                                </p>
+                              </div>
+                            );
+                          }
+
+                          // Count Full House occurrences for current user
+                          let myFullHouseCount = 0;
+
+                          gamesWithResults.forEach(game => {
+                            if (!game.results || game.results.length === 0) return;
+
+                            // Find winner (position === 1)
+                            const winner = game.results.find(r => r.position === 1);
+                            if (!winner || winner.player_id !== userMember.id) return;
+
+                            // Find who won the minigame bonus (max minigames_won)
+                            const maxMinigames = Math.max(...game.results.map(r => r.minigames_won));
+                            const minigameWinner = game.results.find(r => r.minigames_won === maxMinigames);
+
+                            // If same player (me) won both, it's a Full House
+                            if (minigameWinner && winner.player_id === minigameWinner.player_id && maxMinigames > 0) {
+                              myFullHouseCount++;
+                            }
+                          });
+
+                          return (
+                            <div className="flex flex-col items-center justify-center h-full min-h-[200px]">
+                              <div className="text-8xl font-bold text-purple-600 dark:text-purple-400 mb-6">
+                                {myFullHouseCount}
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4 max-w-xs">
+                                {myFullHouseCount === 1 ? 'Obtenida' : 'Obtenidas'}
+                              </p>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}

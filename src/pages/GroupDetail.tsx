@@ -1658,7 +1658,7 @@ export default function GroupDetail() {
                             {/* Maps Container */}
                             <div
                               id="map-dominance-scroll"
-                              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-10 justify-center md:justify-start"
+                              className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-10"
                               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                             >
                               {mapData.map((map) => {

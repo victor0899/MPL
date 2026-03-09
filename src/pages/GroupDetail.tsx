@@ -238,6 +238,27 @@ export default function GroupDetail() {
     return humanMembers.length === 1;
   };
 
+  // Get last 5 positions for a player
+  const getRecentForm = (playerId: string, games: Game[]): number[] => {
+    const positions: number[] = [];
+
+    // Sort games by date (newest first) and get last 5
+    const sortedGames = [...games]
+      .filter(game => game.results && game.results.length > 0)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 5);
+
+    // Get positions for this player
+    sortedGames.forEach(game => {
+      const result = game.results?.find(r => r.player_id === playerId);
+      if (result) {
+        positions.push(result.position);
+      }
+    });
+
+    return positions.reverse(); // Reverse to show oldest to newest (left to right)
+  };
+
 
   useEffect(() => {
     if (id) {
@@ -864,6 +885,12 @@ export default function GroupDetail() {
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Puntos
                       </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Diferencia
+                      </th>
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Últimos 5
+                      </th>
                       {group?.rule_set !== 'pro_bonus' && (
                         <>
                           <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -933,6 +960,42 @@ export default function GroupDetail() {
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
                             {entry.total_league_points}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          {index === 0 && leaderboard.length > 1 ? (
+                            <div className="text-sm font-semibold text-green-600 dark:text-green-400">
+                              +{entry.total_league_points - leaderboard[1].total_league_points}
+                            </div>
+                          ) : index === 0 ? (
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              —
+                            </div>
+                          ) : (
+                            <div className="text-sm font-semibold text-red-600 dark:text-red-400">
+                              {entry.total_league_points - leaderboard[0].total_league_points}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-1">
+                            {getRecentForm(entry.player_id, approvedGamesWithResults).map((position, idx) => (
+                              <div key={idx} className={`w-6 h-6 rounded-full p-0.5 ${
+                                position === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
+                                position === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
+                                position === 3 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
+                                'bg-gradient-to-br from-red-400 via-red-500 to-red-700'
+                              }`}>
+                                <div className="w-full h-full rounded-full flex items-center justify-center bg-white dark:bg-gray-800">
+                                  <span className="text-xs font-bold text-gray-800 dark:text-gray-100">
+                                    {position}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                            {getRecentForm(entry.player_id, approvedGamesWithResults).length === 0 && (
+                              <span className="text-xs text-gray-500 dark:text-gray-400">—</span>
+                            )}
                           </div>
                         </td>
                         {group?.rule_set !== 'pro_bonus' && (
@@ -2733,6 +2796,12 @@ export default function GroupDetail() {
                                   Puntos
                                 </th>
                                 <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Diferencia
+                                </th>
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                  Últimos 5
+                                </th>
+                                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
                                   Victorias
                                 </th>
                               </tr>
@@ -2756,6 +2825,32 @@ export default function GroupDetail() {
                                   </td>
                                   <td className="px-4 py-3 text-center text-gray-800 dark:text-gray-100 font-bold">
                                     {player.total_league_points}
+                                  </td>
+                                  <td className="px-4 py-3 text-center">
+                                    <span className="text-sm font-semibold text-red-600 dark:text-red-400">
+                                      {player.total_league_points - leaderboard[0].total_league_points}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <div className="flex items-center justify-center gap-1">
+                                      {getRecentForm(player.player_id, approvedGamesWithResults).map((position, idx) => (
+                                        <div key={idx} className={`w-6 h-6 rounded-full p-0.5 ${
+                                          position === 1 ? 'bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600' :
+                                          position === 2 ? 'bg-gradient-to-br from-gray-300 via-gray-400 to-gray-500' :
+                                          position === 3 ? 'bg-gradient-to-br from-orange-400 via-orange-500 to-orange-700' :
+                                          'bg-gradient-to-br from-red-400 via-red-500 to-red-700'
+                                        }`}>
+                                          <div className="w-full h-full rounded-full flex items-center justify-center bg-white dark:bg-gray-800">
+                                            <span className="text-xs font-bold text-gray-800 dark:text-gray-100">
+                                              {position}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                      {getRecentForm(player.player_id, approvedGamesWithResults).length === 0 && (
+                                        <span className="text-xs text-gray-500 dark:text-gray-400">—</span>
+                                      )}
+                                    </div>
                                   </td>
                                   <td className="px-4 py-3 text-center text-gray-800 dark:text-gray-100">
                                     {player.games_won}
